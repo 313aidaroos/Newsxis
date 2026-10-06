@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Newsxis",
+    "slug": "newsxis",
+    "scheme": "newsxis",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#05070f",
+    "splash": { "backgroundColor": "#05070f", "resizeMode": "contain", "image": "./assets/icon.png" },
+    "ios": { "bundleIdentifier": "dev.apixis.newsxis", "supportsTablet": true, "infoPlist": { "UIBackgroundModes": ["audio"] } },
+    "android": { "package": "dev.apixis.newsxis", "adaptiveIcon": { "foregroundImage": "./assets/icon.png", "backgroundColor": "#05070f" }, "permissions": ["POST_NOTIFICATIONS"] },
+    "plugins": ["expo-router", ["expo-notifications", { "color": "#38e8ff" }]],
+    "extra": { "siteUrl": "https://newsxis.vercel.app", "eas": { "projectId": "" } }
+  }
+}

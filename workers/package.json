@@ -1,0 +1,12 @@
+{
+  "name": "newsxis-workers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Always-on radio listener for Newsxis: ffmpeg → 30s chunks → speech-to-text → /api/worker/transcripts",
+  "scripts": {
+    "listen": "node radio-listener.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

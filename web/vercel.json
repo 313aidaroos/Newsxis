@@ -1,0 +1,11 @@
+{
+  "crons": [
+    { "path": "/api/cron/ingest", "schedule": "*/3 * * * *" },
+    { "path": "/api/cron/process", "schedule": "*/2 * * * *" },
+    { "path": "/api/cron/research", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/social", "schedule": "*/3 * * * *" },
+    { "path": "/api/cron/briefing?scope=world", "schedule": "0 * * * *" },
+    { "path": "/api/cron/briefing?scope=regions", "schedule": "30 */3 * * *" },
+    { "path": "/api/cron/alerts", "schedule": "*/2 * * * *" }
+  ]
+}
