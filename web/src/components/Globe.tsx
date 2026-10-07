@@ -8,6 +8,7 @@
 import maplibregl, { type Map as MlMap, type StyleSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Post, Source, Story } from "@/lib/types";
+import { isIdleSpinMove } from "@/lib/home-feed";
 
 export type Layers = { stories: boolean; stations: boolean; posts: boolean; alerts: boolean };
 type Props = {
@@ -42,16 +43,17 @@ export function Globe({ stories, stations, posts, focus, onViewChange, onStory, 
     const m = new maplibregl.Map({ container: el.current, style: style(), center: [-30, 25], zoom: 1.6, attributionControl: { compact: true }, maxZoom: 19 });
     m.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
     m.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: false }, trackUserLocation: false }), "bottom-right");
+    const emit = (ev?: { newsxisIdleSpin?: boolean }) => {
+      if (isIdleSpinMove(ev) || !onViewChange) return;
+      const b = m.getBounds(), c = m.getCenter();
+      onViewChange([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], m.getZoom(), { lat: c.lat, lng: c.lng });
+    };
     m.on("style.load", () => {
       try { m.setProjection({ type: "globe" }); } catch { /* older maplibre */ }
       try { m.setSky({ "sky-color": "#06102a", "horizon-color": "#0b1a40", "fog-color": "#05070f", "sky-horizon-blend": 0.6, "horizon-fog-blend": 0.9, "fog-ground-blend": 0.8 }); } catch { /* optional */ }
       setReady(true);
+      emit();
     });
-    const emit = () => {
-      if (!onViewChange) return;
-      const b = m.getBounds(), c = m.getCenter();
-      onViewChange([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], m.getZoom(), { lat: c.lat, lng: c.lng });
-    };
     m.on("moveend", emit);
     map.current = m;
     return () => { m.remove(); map.current = null; };
@@ -62,7 +64,7 @@ export function Globe({ stories, stations, posts, focus, onViewChange, onStory, 
   useEffect(() => {
     const m = map.current; if (!m || !ready) return;
     let raf = 0; let stop = false;
-    const spin = () => { if (stop) return; if (m.getZoom() < 2.2 && !m.isMoving()) { const c = m.getCenter(); m.setCenter([c.lng + 0.04, c.lat]); } raf = requestAnimationFrame(spin); };
+    const spin = () => { if (stop) return; if (m.getZoom() < 2.2 && !m.isMoving()) { const c = m.getCenter(); m.setCenter([c.lng + 0.04, c.lat], { newsxisIdleSpin: true }); } raf = requestAnimationFrame(spin); };
     raf = requestAnimationFrame(spin);
     const halt = () => { stop = true; cancelAnimationFrame(raf); };
     m.once("mousedown", halt); m.once("touchstart", halt); m.once("wheel", halt);
