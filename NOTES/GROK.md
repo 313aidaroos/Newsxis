@@ -1,5 +1,36 @@
 # Grok notes
 
+## 2026-10-06 — Advisor migration 004
+
+Branch `cursor/security-billing-safety-c08c`. Pull request: https://github.com/313aidaroos/Newsxis/pull/1. Do not merge from this note. 001, 002 and 003 were not edited.
+
+### Why the public profile view works this way
+`profiles_public` had `security_invoker = false`, so it ran as the owner and skipped row security. It is now `security_invoker = true`.
+
+Postgres policies are row policies. They cannot reveal `username` on someone else's row and hide `home_lat` on that same row. The signed-in site reads the caller's full profile (`select *`, age flags, home coordinates) with the user JWT, under "profiles self read". A second policy that lets authenticated read every profile would expose those private columns.
+
+So the directory does not select from `profiles` as the caller. The view calls `private.profile_directory()`. That function is security definer, lives outside the exposed `public` schema, and returns only id, username, display name, avatar, bio, verified reporter, reporter points and created at, and only when `banned` and `age_blocked` are false. Anon and authenticated may select the view. Anon still has no SELECT policy on `profiles`. Authenticated still reads only their own row, unless `is_owner()` is true.
+
+### Other advisor items
+Every function in `public` gets `search_path = public, extensions`, including `set_updated_at`, `stories_near` and `is_owner`. `pg_trgm` is moved into `extensions`. The headline trigram index stays valid (`extensions.gin_trgm_ops`). API roles, and `authenticator` when that role exists, use that search path so `%` and `similarity()` still resolve.
+
+`handle_new_user()` and `sync_owner_flags()` are revoked from public, anon and authenticated. Execute remains for `supabase_auth_admin` (signup trigger) and `service_role`. `take_request_allowance` stays service-role only, which is how the server calls it. `set_updated_at` and `protect_profile_privileges` stay executable by authenticated, because a signed-in person updates their own profile and those triggers fire.
+
+The 13 named policies were dropped and recreated with `(select auth.uid())` and the same conditions. "reactions self" is insert, update and delete, so it no longer overlaps the public read. `alert_deliveries`, `master_admins` and `request_allowances` have an explicit deny for anon and authenticated. The service role still bypasses RLS. The foreign keys named in the advisor note each got an index. Unused indexes were left alone.
+
+The old message policies said `m.conversation_id = conversation_id`. Inside that subquery Postgres binds the bare name to `m.conversation_id`, so the check was true for any conversation the person belongs to. 004 uses `messages.conversation_id`.
+
+### Infra notes (nothing in this repo changed them)
+(a) Supabase project `newsxis` (ref olwnstniusyyaswxboux, us-east-1, org aqrfqmskbwxyfdzaibue, $10/mo) was created 2026-10-06 ~9:33 PM CT after Awad approved. Undo: pause or delete it in the Supabase dashboard.
+
+(b) Migrations 001–003 were applied ~9:35 PM CT. 004 is applied by the owner after this pull request, not from here. Undo: there is no automatic down migration. Restore the database or drop the objects.
+
+(c) Vercel env vars `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` were set for Preview only on project newsxis. `SUPABASE_SERVICE_ROLE_KEY` is pending. Undo: remove them in Vercel Settings, Environment Variables, or with `vercel env rm <NAME> preview`. No secret values are written down.
+
+(d) Still to do in the Supabase dashboard: enable leaked-password protection (Auth settings), and consider changing the Auth database connection cap from a fixed 10 to a percentage.
+
+Undo the file: revert the commit that adds this entry, or close the pull request without merging.
+
 ## 2026-10-06 — Home fetch loop, missing page, favicon
 
 Branch `cursor/security-billing-safety-c08c`. Pull request: https://github.com/313aidaroos/Newsxis/pull/1. Same pull request as the security work. Do not merge from this note.
