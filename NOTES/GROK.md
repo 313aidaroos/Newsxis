@@ -8,7 +8,7 @@ The preview was calling `/api/stories` and `/api/posts` about 17 times a second.
 
 Unknown URLs, including `/story/<missing>`, render `web/src/app/not-found.tsx`. `/favicon.ico` and `/favicon.png` are the same mark as `web/src/app/icon.svg`.
 
-Undo: revert the commit on branch `cursor/security-billing-safety-c08c` that adds this entry, or close the pull request without merging.
+Undo: revert commit `f89ea14` on branch `cursor/security-billing-safety-c08c`, or close https://github.com/313aidaroos/Newsxis/pull/1 without merging.
 
 ## 2026-10-06 ~9:20 PM CT — Vercel project protection (no code)
 

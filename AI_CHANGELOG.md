@@ -6,7 +6,7 @@ Every AI model, bot or agent that changes anything in this repo appends a dated 
 - The idle globe spin called `setCenter` every frame. That fired `moveend`, which updated the home view, which rebuilt the story and post fetch. `/api/stories` and `/api/posts` ran many times a second even in World mode, where the camera is not part of the query. Spin move-ends are ignored. Fetches run on a filter change, on World / This view, on a settled pan in This view (400ms), and every 45 seconds.
 - A missing story or any unknown URL uses `web/src/app/not-found.tsx` (the dark newsroom page) instead of the default white 404.
 - `/favicon.ico` and `/favicon.png` serve the existing globe mark.
-- Undo: revert the commit on branch `cursor/security-billing-safety-c08c` that adds this entry, or close https://github.com/313aidaroos/Newsxis/pull/1 without merging.
+- Undo: revert commit `f89ea14` on branch `cursor/security-billing-safety-c08c`, or close https://github.com/313aidaroos/Newsxis/pull/1 without merging.
 
 ## 2026-10-06 ~9:20 PM CT — Grok: Vercel project protection (no code)
 - A Vercel project `newsxis` (prj_c5I3vU7jDzVlqqcsHsULBmAmzzoR, team 313aidaroos-projects) was created and linked to this repo, with root `web`. The first CLI deploy unintentionally went to production at newsxis.vercel.app. Vercel Authentication (SSO protection) is now ON for ALL deployments, production included, so every URL needs a Vercel login. Crons are left as-is; they return 401 because CRON_SECRET is set for Preview only.
