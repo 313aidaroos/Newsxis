@@ -29,7 +29,7 @@ The old message policies said `m.conversation_id = conversation_id`. Inside that
 
 (d) Still to do in the Supabase dashboard: enable leaked-password protection (Auth settings), and consider changing the Auth database connection cap from a fixed 10 to a percentage.
 
-Undo the file: revert the commit that adds this entry, or close the pull request without merging.
+Undo the file: revert commit `f636594` on branch `cursor/security-billing-safety-c08c`, or close https://github.com/313aidaroos/Newsxis/pull/1 without merging.
 
 ## 2026-10-06 — Home fetch loop, missing page, favicon
 
