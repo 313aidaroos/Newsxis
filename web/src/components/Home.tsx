@@ -48,13 +48,13 @@ export function Home({ initialStories, initialStations, showGraphic }: { initial
   }, [load]);
 
   const visible = useMemo(() => {
-    const list = stories.filter((s) => (showGraphic || !s.graphic));
+    const list = stories;
     if (mode === "view" && view) {
       const [w, so, e, n] = view.bbox;
       return list.filter((s) => s.lat !== null && s.lng !== null && s.lat >= so && s.lat <= n && (w <= e ? s.lng >= w && s.lng <= e : s.lng >= w || s.lng <= e));
     }
     return list;
-  }, [stories, mode, view, showGraphic]);
+  }, [stories, mode, view]);
 
   const search = async (e: React.FormEvent) => {
     e.preventDefault();

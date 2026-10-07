@@ -78,15 +78,15 @@ export function Globe({ stories, stations, posts, focus, onViewChange, onStory, 
     const place = [s.place_name ?? s.city, s.country].filter(Boolean).join(", ");
     const chip = s.severity >= 5 ? "BREAKING" : s.severity === 4 ? "CRITICAL" : s.severity === 3 ? "MAJOR" : s.category.toUpperCase();
     const status = s.disputed ? "Disputed" : s.confirmed ? "Confirmed" : "Unconfirmed";
-    return `<div class="nx-tiny">${chip} · ${status} · ${place}</div><h4>${esc(s.headline)}</h4><p>${esc(s.summary.slice(0, 180))}${s.summary.length > 180 ? "…" : ""}</p><a href="/story/${s.slug}">Open story →</a>`;
-  }, []);
+    const graphicNote = s.graphic && !showGraphic ? `<div class="nx-tiny">Graphic media is hidden.</div>` : "";
+    return `<div class="nx-tiny">${chip} · ${status} · ${place}</div><h4>${esc(s.headline)}</h4><p>${esc(s.summary.slice(0, 180))}${s.summary.length > 180 ? "…" : ""}</p>${graphicNote}<a href="/story/${s.slug}">Open story →</a>`;
+  }, [showGraphic]);
 
   useEffect(() => {
     const m = map.current; if (!m || !ready) return;
     markers.current.forEach((k) => k.remove()); markers.current = [];
     if (layers.stories) for (const s of stories) {
       if (s.lat === null || s.lng === null) continue;
-      if (s.graphic && !showGraphic) continue;
       const d = document.createElement("div"); d.className = `nx-marker nx-marker-sev${s.severity}`; d.title = s.headline;
       const mk = new maplibregl.Marker({ element: d }).setLngLat([s.lng, s.lat]).setPopup(new maplibregl.Popup({ className: "nx-popup", offset: 12 }).setHTML(popupHtml(s))).addTo(m);
       d.addEventListener("click", () => onStory?.(s));

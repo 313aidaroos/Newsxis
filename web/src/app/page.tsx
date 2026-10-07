@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Home } from "@/components/Home";
+import { showGraphicMedia } from "@/lib/safety";
 import { currentProfile, supabaseConfigured, supabaseUser } from "@/lib/supabase/server";
 import type { Source, Story } from "@/lib/types";
 
@@ -21,7 +22,7 @@ export default async function Page() {
   }
   return (
     <Suspense fallback={<div className="nx-empty">Loading…</div>}>
-      <Home initialStories={stories} initialStations={stations} showGraphic={profile?.show_graphic_media ?? true} />
+      <Home initialStories={stories} initialStations={stations} showGraphic={showGraphicMedia(profile?.show_graphic_media)} />
     </Suspense>
   );
 }

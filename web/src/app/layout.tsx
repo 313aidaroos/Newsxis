@@ -5,7 +5,7 @@ import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
   title: { default: "Newsxis — real-time news for every place on Earth", template: "%s · Newsxis" },
-  description: "Cixy listens to public radio and free news feeds around the world, writes the story, researches it, shows the other side, and reads it on air. By Apixis Family Company.",
+  description: "Cixy listens to public radio and free news feeds around the world, writes the story, researches it, shows the other side, and reads it on air. By Apixis Dev LLC.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsxis.vercel.app"),
   openGraph: { siteName: "Newsxis", type: "website" },
   manifest: "/manifest.json",
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Nav />
         <main className="nx-main">{children}</main>
         <footer className="nx-footer">
-          <span>© {new Date().getFullYear()} Newsxis · Apixis Family Company · Illinois</span>
+          <span>© {new Date().getFullYear()} Newsxis · Apixis Dev LLC</span>
           <a href="/about">About</a>
           <a href="/about#ai">AI-generated label</a>
           <a href="/about#corrections">Corrections</a>

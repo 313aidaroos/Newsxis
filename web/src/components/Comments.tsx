@@ -14,8 +14,13 @@ export function Comments({ storyId, postId, signedIn }: { storyId?: string; post
   const send = async (e: React.FormEvent) => {
     e.preventDefault(); setMsg(null);
     const r = await fetch("/api/comments", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ body, story_id: storyId, post_id: postId }) }).then((x) => x.json());
-    if (!r.ok) { setMsg(r.error === "sign_in_required" ? "Sign in to comment." : r.error === "comment_rejected" ? "That comment can't be posted." : "Could not post. Try again."); return; }
-    setBody(""); if (r.status === "held") setMsg("Your comment is waiting for a quick review."); load();
+    if (!r.ok) {
+      setMsg(r.error === "sign_in_required" ? "Sign in to comment." : r.error === "age_required" ? "Confirm that you are 13 or older before commenting." : r.error === "comment_rejected" ? "That comment can't be posted." : "Could not post. Try again.");
+      return;
+    }
+    setBody("");
+    if (r.status === "held" || r.status === "pending") setMsg("Your comment is waiting for a quick review.");
+    load();
   };
   return (
     <div className="nx-grid" style={{ gap: 10 }}>
