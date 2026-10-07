@@ -1,6 +1,6 @@
 # Social accounts checklist (owner)
 
-Newsxis cannot create social accounts. Create them under Apixis Family Company, then paste the keys into
+Newsxis cannot create social accounts. Create them under Apixis Dev LLC, then paste the keys into
 `/admin/social` (or Vercel env for the main account). Start with the main account; add locals as regions go live.
 
 ## Naming
@@ -8,7 +8,7 @@ Newsxis cannot create social accounts. Create them under Apixis Family Company, 
 - Country: `@newsxis_<iso2>` → `@newsxis_us`, `@newsxis_gb`, `@newsxis_eg`
 - US state: `@newsxis_<state>` → `@newsxis_ny`, `@newsxis_il`
 - Big city: `@newsxis_<city>` → `@newsxis_nyc`, `@newsxis_london`, `@newsxis_cairo`
-Same handle on every platform where it is free. Bio: "AI-written real-time news for <place>, read by Cixy. Owned by Apixis Family Company. Every post is AI-generated and links to its source."
+Same handle on every platform where it is free. Bio: "AI-written real-time news for <place>, read by Cixy. Owned by Apixis Dev LLC. Every post is AI-generated and links to its source."
 
 ## Bluesky (easiest, do first)
 1. Create the account at bsky.app → Settings → App Passwords → create one.

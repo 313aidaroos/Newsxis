@@ -1,12 +1,16 @@
 /**
- * Reporter activation + monthly seat, paid in Ixis through the Apixis Wallet (family rule: reserve →
- * provision → capture; never our own Stripe). SKUs: newsxis.activate (one-time), newsxis.reporter.monthly (30 days).
+ * Ixis redeem for Newsxis (reserve → provision → capture on the Apixis Wallet).
+ * Customers choose card or Ixis at checkout (`/api/billing/checkout`); both go through the Wallet.
+ * Newsxis holds no Stripe keys. This route is the Ixis path that exists in the Wallet SDK today.
+ * It charges once. It does not auto-renew. Auto-renew waits on the Wallet's subscribe endpoint.
+ * SKUs: newsxis.activate (1,000 Ixis, $10, one-time), newsxis.reporter.monthly (1,000 Ixis, $10 / month).
  */
 import { fail, json, siteUrl } from "@/lib/api";
 import { buyIxisUrl, isWalletConfigured, redeem, WalletError } from "@/lib/apixis-wallet";
 import { apixisOwner } from "@/lib/apixis-login";
 import { currentProfile, serviceConfigured, supabaseAdmin } from "@/lib/supabase/server";
 import { NEWSXIS_PRODUCTS, type NewsxisProduct } from "@/lib/products";
+import { ageAllowsUse } from "@/lib/safety";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +18,13 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   const { user, profile } = await currentProfile();
   if (!user?.email || !profile) return fail("sign_in_required", 401);
+  if (profile.banned || profile.age_blocked) return fail("not_allowed", 403);
+  if (!ageAllowsUse(profile)) return fail("age_required", 403);
   if (!serviceConfigured()) return fail("db_not_configured", 503);
   const body = await request.json().catch(() => ({})) as { productKey?: string; attemptId?: string; storyId?: string };
   const productKey = body.productKey as NewsxisProduct;
   if (!productKey || !(productKey in NEWSXIS_PRODUCTS)) return fail("unknown_product");
+  if (productKey === "newsxis.sponsor.briefing") return fail("not_available_yet", 501);
   if (!body.attemptId || body.attemptId.length > 48) return fail("attemptId required");
   if (!isWalletConfigured()) return fail("wallet_not_configured", 503);
   if (productKey === "newsxis.reporter.monthly" && !profile.activated_at) return fail("activate_first", 409);

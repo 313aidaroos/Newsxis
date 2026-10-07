@@ -1,3 +1,4 @@
+import { reporterSeatActive } from "@/lib/safety";
 import { currentProfile } from "@/lib/supabase/server";
 import { Composer } from "./Composer";
 
@@ -6,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const { user, profile } = await currentProfile();
-  const seat = Boolean(profile?.is_owner || (profile?.activated_at && profile?.reporter_active_until && Date.parse(profile.reporter_active_until) > Date.now()));
+  const seat = reporterSeatActive(profile);
   return (
     <div className="nx-page nx-page-narrow">
       <h1 className="nx-h1">Report from the ground</h1>
