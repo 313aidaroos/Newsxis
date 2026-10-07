@@ -7,7 +7,7 @@ Every AI model, bot or agent that changes anything in this repo appends a dated 
 - Payments follow the 2026-10-06 family billing plan. Card or Ixis, the customer's choice, through the Wallet. No Stripe SDK and no Stripe keys. `/billing` reads the Wallet and does not invent rows. Reporter seat is $10 activation plus $10 a month. Sponsor briefing (5,000 Ixis) is in `web/src/lib/products.ts`.
 - Entity name is Apixis Dev LLC. Feed tab label is Socixis Social. Repo name in `docs/SETUP.md` is `313aidaroos/Newsxis`.
 - Sign-in requires a 13+ answer, stored on the profile. Graphic media is off for visitors and new users; settings can turn it on, and then it stays blurred until hover.
-- Undo: revert the commits on branch `cursor/security-billing-safety-c08c`, or close that pull request without merging.
+- Undo: revert commit `6c18420` on branch `cursor/security-billing-safety-c08c`, or close https://github.com/313aidaroos/Newsxis/pull/1 without merging.
 
 ## 2026-10-06 — Claude (lead developer): first build
 - Interviewed the owner (two rounds of questions) and wrote the decisions into `PLAN.md`.

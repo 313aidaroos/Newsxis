@@ -2,7 +2,7 @@
 
 ## 2026-10-06 — Security, billing, age, graphic media
 
-Branch `cursor/security-billing-safety-c08c`. Undo by reverting those commits, or by closing the pull request without merging. Do not merge from this note.
+Branch `cursor/security-billing-safety-c08c`. Pull request: https://github.com/313aidaroos/Newsxis/pull/1. Undo by reverting commit `6c18420`, or by closing that pull request without merging. Do not merge from this note.
 
 ### Why migration 003 is new
 `001_newsxis.sql` and `002_seed_sources.sql` are the scripts `docs/SETUP.md` tells the owner to paste. They may already be applied. Editing them would not change a database that has already run them. `003_security.sql` applies the locks either way. Run it after 001 and 002.
