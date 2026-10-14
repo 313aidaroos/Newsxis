@@ -6,7 +6,7 @@ Every AI model, bot or agent that changes anything in this repo appends a dated 
 - A Wallet purchase that returns a receipt is stored on `revenue_events` (existing table, `note` says card or Ixis). `/billing` merges those rows with Wallet history and does not invent rows when the Wallet history route is missing. `/billing/receipt/[id]` is the receipt. The sponsor item (5,000 Ixis, $50) can be bought with a card through Wallet Checkout or with Ixis through redeem.
 - Migration `supabase/migrations/005_receipts.sql` lets the buyer read their own rows and adds `method`. It is not applied to the live project. Prices and the no-Stripe rule are unchanged.
 - Why: every completed purchase needs a receipt on the billing page, and the sponsor SKU was blocked.
-- Undo: revert this commit on branch `cursor/billing-receipts-sponsor-2a3f`. The pull request targets `cursor/launch-legal-seo-2a3f` and is not merged from this note.
+- Undo: revert commit `2d9095f` on branch `cursor/billing-receipts-sponsor-2a3f`. The pull request targets `cursor/launch-legal-seo-2a3f` and is not merged from this note.
 
 ## 2026-10-14 — Grok: default Facebook Page URL
 - `facebookPageUrl` uses `https://www.facebook.com/profile.php?id=61595105653913` when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is unset or blank. A set value still overrides it. The https check accepts `profile.php?id=` (host facebook.com, m.facebook.com, or fb.com, pathname not bare `/`). An invalid override stays unlinked and does not fall back to the default.

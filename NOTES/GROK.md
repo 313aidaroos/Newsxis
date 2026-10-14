@@ -8,7 +8,7 @@ Redeem used to reject `newsxis.sponsor.briefing` with `not_available_yet`. It no
 
 `/billing` is readable signed out so the prices are public. History and the buy buttons still require Apixis ID. Local receipts use rows this site inserted after `redeem()` or checkout returned `receiptId`. They are not samples.
 
-Undo: revert this commit on `cursor/billing-receipts-sponsor-2a3f`.
+Undo: revert commit `2d9095f` on `cursor/billing-receipts-sponsor-2a3f`.
 
 ## 2026-10-14 — Default Facebook Page URL
 
