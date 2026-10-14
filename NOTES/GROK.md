@@ -8,7 +8,7 @@ Branch `cursor/launch-legal-seo-2a3f`. Base `cursor/security-billing-safety-c08c
 
 `facebookPageUrl` rejects anything that is not https on facebook.com, m.facebook.com, or fb.com with a path. The Page address is not in the repo, so the slot stays empty until Awad sets `NEXT_PUBLIC_FACEBOOK_PAGE_URL`.
 
-Undo: revert this commit on `cursor/launch-legal-seo-2a3f`.
+Undo: revert commit `3644687` on `cursor/launch-legal-seo-2a3f`.
 
 ## 2026-10-06 — Advisor migration 004
 

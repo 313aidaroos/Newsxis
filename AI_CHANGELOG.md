@@ -7,7 +7,7 @@ Every AI model, bot or agent that changes anything in this repo appends a dated 
 - The Facebook Page is a link and embed only when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is an https Facebook URL (`web/src/lib/public-site.ts`, `web/src/components/FacebookPage.tsx`). No URL is in the repo, so About shows the empty slot. The env name is in `web/.env.example`.
 - Sign-in links (`SignInWithApixis`, the post page, the family-feed skin, the wallet chip's Link Apixis ID) go to `/login`, where the 13+ checkbox sets the cookie. `/post` is session-protected. `/terms`, `/privacy`, and `/support` stay reachable for someone sent to onboarding.
 - Why: launch readiness. Newsxis keeps its own theme. No new signup path. No secrets.
-- Undo: revert this commit on branch `cursor/launch-legal-seo-2a3f`. The pull request is opened against `cursor/security-billing-safety-c08c` and is not merged from this note.
+- Undo: revert commit `3644687` on branch `cursor/launch-legal-seo-2a3f`. The pull request is opened against `cursor/security-billing-safety-c08c` and is not merged from this note.
 
 ## 2026-10-06 — Grok: Supabase advisor migration 004
 - New `supabase/migrations/004_advisor_fixes.sql`. 001–003 are unchanged. `profiles_public` is `security_invoker = true`. It reads `private.profile_directory()`, which returns only the public columns for people who are not banned and not age-blocked. A public read policy on `profiles` cannot hide columns, and the signed-in app still reads its own full row, so other people's home coordinates and Apixis ids stay off that table for anon (no policy) and for authenticated (own row, or an owner).
