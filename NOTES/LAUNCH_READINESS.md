@@ -2,7 +2,7 @@
 
 Official launch: **1 January 2027**. Marketing starts **1 December 2026**. Beta is now. Facebook Page is live at `https://www.facebook.com/profile.php?id=61595105653913`. That address is the default. `NEXT_PUBLIC_FACEBOOK_PAGE_URL` overrides it.
 
-Branch under review: `cursor/security-billing-safety-c08c` (PR #1, not merged). Master is the first build. Supabase `olwnstniusyyaswxboux` has migrations 001–004 applied. This note does not merge anything and does not change Vercel or Supabase settings.
+Branch under review: `cursor/launch-legal-seo-2a3f` (PR #2). Base is `master`, which includes PR #1. Supabase `olwnstniusyyaswxboux` has migrations 001–004 applied. This note does not merge anything and does not change Vercel or Supabase settings.
 
 ## Done
 

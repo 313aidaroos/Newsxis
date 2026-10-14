@@ -6,17 +6,17 @@ Branch `cursor/launch-legal-seo-2a3f` (PR #2). Do not merge from this note.
 
 `NEXT_PUBLIC_FACEBOOK_PAGE_URL` still wins when it is set. Unset or blank uses `https://www.facebook.com/profile.php?id=61595105653913`. `facebookPageUrl` accepts that `profile.php?id=` form. `facebookPageEmbeds` is false for `/profile.php`, so About renders the link and not the page plugin. There is no `sameAs` list and no social-link array in the layout, so the URL was not added to one.
 
-Undo: revert commit `58ec70f` on `cursor/launch-legal-seo-2a3f`.
+Undo: revert commit `2505c99` on `cursor/launch-legal-seo-2a3f`.
 
 ## 2026-10-14 — Legal pages, SEO, Facebook slot, 13+ doors
 
-Branch `cursor/launch-legal-seo-2a3f`. Base `cursor/security-billing-safety-c08c` (PR #1, not merged). Do not merge from this note.
+Branch `cursor/launch-legal-seo-2a3f`. Base `master` (PR #1 is merged). Do not merge from this note.
 
 `NOTES/LAUNCH_READINESS.md` is the launch list. This commit is the public-site slice: terms, privacy, Open Graph, robots, sitemap, the Facebook config slot, and sign-in doors that all stop at `/login` for the 13+ question.
 
 `facebookPageUrl` rejects anything that is not https on facebook.com, m.facebook.com, or fb.com with a path. The Page address is not in the repo, so the slot stays empty until Awad sets `NEXT_PUBLIC_FACEBOOK_PAGE_URL`.
 
-Undo: revert commit `3644687` on `cursor/launch-legal-seo-2a3f`.
+Undo: revert commit `90278a3` on `cursor/launch-legal-seo-2a3f`.
 
 ## 2026-10-06 — Advisor migration 004
 
