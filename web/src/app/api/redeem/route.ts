@@ -10,6 +10,7 @@ import { buyIxisUrl, isWalletConfigured, redeem, WalletError } from "@/lib/apixi
 import { apixisOwner } from "@/lib/apixis-login";
 import { currentProfile, serviceConfigured, supabaseAdmin } from "@/lib/supabase/server";
 import { NEWSXIS_PRODUCTS, type NewsxisProduct } from "@/lib/products";
+import { receiptNote } from "@/lib/receipts";
 import { ageAllowsUse } from "@/lib/safety";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +22,9 @@ export async function POST(request: Request) {
   if (profile.banned || profile.age_blocked) return fail("not_allowed", 403);
   if (!ageAllowsUse(profile)) return fail("age_required", 403);
   if (!serviceConfigured()) return fail("db_not_configured", 503);
-  const body = await request.json().catch(() => ({})) as { productKey?: string; attemptId?: string; storyId?: string };
+  const body = await request.json().catch(() => ({})) as { productKey?: string; attemptId?: string; storyId?: string; sponsorName?: string };
   const productKey = body.productKey as NewsxisProduct;
   if (!productKey || !(productKey in NEWSXIS_PRODUCTS)) return fail("unknown_product");
-  if (productKey === "newsxis.sponsor.briefing") return fail("not_available_yet", 501);
   if (!body.attemptId || body.attemptId.length > 48) return fail("attemptId required");
   if (!isWalletConfigured()) return fail("wallet_not_configured", 503);
   if (productKey === "newsxis.reporter.monthly" && !profile.activated_at) return fail("activate_first", 409);
@@ -57,8 +57,13 @@ export async function POST(request: Request) {
     });
     if (!result.ok) return json({ ok: false, error: "insufficient_ixis", needed: result.needed, buy: buyIxisUrl("newsxis", `${siteUrl(request)}/post`) }, 402);
     const p = NEWSXIS_PRODUCTS[productKey];
-    await db.from("revenue_events").insert({ kind: productKey === "newsxis.activate" ? "activation" : productKey === "newsxis.reporter.monthly" ? "seat" : "boost", user_id: user.id, ixis: p.ixis, usd: p.ixis / 100, wallet_receipt_id: result.receiptId, product_key: productKey });
-    return json({ ok: true, productKey, receiptId: result.receiptId });
+    const kind = productKey === "newsxis.activate" ? "activation" : productKey === "newsxis.reporter.monthly" ? "seat" : productKey === "newsxis.sponsor.briefing" ? "sponsor" : "boost";
+    const sponsorName = typeof body.sponsorName === "string" ? body.sponsorName.replace(/\s+/g, " ").trim().slice(0, 80) : "";
+    const { data: saved } = await db.from("revenue_events").insert({
+      kind, user_id: user.id, ixis: p.ixis, usd: p.ixis / 100, wallet_receipt_id: result.receiptId || null, product_key: productKey,
+      note: receiptNote("ixis", sponsorName ? `Sponsor line: ${sponsorName}` : undefined),
+    }).select("id").single();
+    return json({ ok: true, productKey, receiptId: result.receiptId, receiptUrl: saved?.id ? `/billing/receipt/${saved.id}` : "/billing" });
   } catch (e) {
     if (e instanceof WalletError) return fail(e.message, e.status === 402 ? 402 : 502, { buy: buyIxisUrl("newsxis", `${siteUrl(request)}/post`) });
     return fail((e as Error).message, 500);
