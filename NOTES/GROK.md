@@ -10,7 +10,7 @@ The daily report cron is `5 * * * *` because Vercel cron is UTC. `isEightPmCentr
 
 `runSocialQueue` counts `skipped` and does not set `social_posts.status` to failed when the reason is `*_not_configured`, `*_not_connected`, or `credentials_unreadable`. X media goes to `https://api.x.com/2/media/upload`. A bad upload returns null and the tweet is text only.
 
-Undo: revert this commit on `cursor/feed-report-social-2a3f`.
+Undo: revert commit `0bae73b` on `cursor/feed-report-social-2a3f`.
 
 ## 2026-10-14 — Receipts and the sponsor item
 
