@@ -34,7 +34,7 @@ export function LoginCard({ next, error }: { next: string; error?: string }) {
         I am 13 or older
       </label>
       <button className="nx-btn" type="button" disabled={!ofAge || busy} onClick={go} style={{ width: "100%" }}>{busy ? "Continuing…" : "Sign in with Apixis"}</button>
-      <p className="nx-tiny">By signing in you accept the Newsxis terms: AI-written news is labeled, posts are moderated, and a reporter seat is $10 to activate plus $10 a month, by card or Ixis, through the Apixis Wallet.</p>
+      <p className="nx-tiny">By signing in you accept the <a href="/terms">Newsxis terms</a> and <a href="/privacy">privacy policy</a>. AI-written news is labeled. A reporter seat is $10 to activate plus $10 a month, by card or Ixis, through the Apixis Wallet. There is no other signup.</p>
     </div>
   );
 }

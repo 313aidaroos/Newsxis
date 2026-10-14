@@ -1,5 +1,15 @@
 # Grok notes
 
+## 2026-10-14 — Legal pages, SEO, Facebook slot, 13+ doors
+
+Branch `cursor/launch-legal-seo-2a3f`. Base `cursor/security-billing-safety-c08c` (PR #1, not merged). Do not merge from this note.
+
+`NOTES/LAUNCH_READINESS.md` is the launch list. This commit is the public-site slice: terms, privacy, Open Graph, robots, sitemap, the Facebook config slot, and sign-in doors that all stop at `/login` for the 13+ question.
+
+`facebookPageUrl` rejects anything that is not https on facebook.com, m.facebook.com, or fb.com with a path. The Page address is not in the repo, so the slot stays empty until Awad sets `NEXT_PUBLIC_FACEBOOK_PAGE_URL`.
+
+Undo: revert this commit on `cursor/launch-legal-seo-2a3f`.
+
 ## 2026-10-06 — Advisor migration 004
 
 Branch `cursor/security-billing-safety-c08c`. Pull request: https://github.com/313aidaroos/Newsxis/pull/1. Do not merge from this note. 001, 002 and 003 were not edited.

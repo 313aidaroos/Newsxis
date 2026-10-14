@@ -73,7 +73,7 @@ export function ApixisWalletChip({ className, next }: { className?: string; next
   useEffect(() => {
     setHere(window.location.pathname + window.location.search);
   }, []);
-  const signIn = `/auth/apixis/start?next=${encodeURIComponent(next ?? here)}`;
+  const signIn = `/login?next=${encodeURIComponent(next ?? here)}`;
   const amount = wallet.available === null ? "—" : wallet.available.toLocaleString();
   return (
     <span className={["apx-wallet", className].filter(Boolean).join(" ")} style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>

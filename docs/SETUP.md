@@ -10,7 +10,7 @@ Do these in order. Each one is a copy/paste. Nothing is faked: the site shows ex
 
 ## 2. Vercel (the website) — free to test, Pro ($20/mo) at launch
 1. vercel.com → Add New → Project → import `313aidaroos/Newsxis` → **Root Directory: `web`** → Deploy.
-2. Settings → Environment Variables: everything in `web/.env.example`. Minimum to see news flowing:
+2. Settings → Environment Variables: everything in `web/.env.example`. `NEXT_PUBLIC_FACEBOOK_PAGE_URL` stays empty until the Page address is known. Minimum to see news flowing:
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `CRON_SECRET` (any long random string), `NEXT_PUBLIC_SITE_URL`.
 3. Redeploy. Vercel Cron (in `web/vercel.json`) starts: feeds every 3 min, Cixy writes stories every 2 min, research every 5 min, world briefing hourly.
 4. Open `/api/health` — every `true` is a connected piece.
