@@ -1,8 +1,10 @@
 "use client";
 
-/** "Sign in with Apixis": one Apixis account for every family site. Keeps the page's ?next=. */
+import { apixisLoginHref } from "@/lib/public-site";
+
+/** "Sign in with Apixis": one Apixis account for every family site. The 13+ question is on /login. */
 export function SignInWithApixis({ next, className }: { next?: string; className?: string }) {
-  const href = (target: string) => `/auth/apixis/start?next=${encodeURIComponent(target)}`;
+  const href = (target: string) => apixisLoginHref(target);
   return (
     <p className={className} style={{ textAlign: "center", margin: "12px 0" }}>
       <a

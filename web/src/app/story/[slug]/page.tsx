@@ -26,7 +26,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const d = await load(slug);
   if (!d) return { title: "Story" };
-  return { title: d.story.headline, description: d.story.summary, openGraph: { title: d.story.headline, description: d.story.summary, images: [`/api/card/${slug}`] }, twitter: { card: "summary_large_image" } };
+  const description = d.story.summary;
+  const image = `/api/card/${slug}`;
+  return {
+    title: d.story.headline,
+    description,
+    alternates: { canonical: `/story/${slug}` },
+    openGraph: { title: d.story.headline, description, url: `/story/${slug}`, images: [image], type: "article" },
+    twitter: { card: "summary_large_image", title: d.story.headline, description, images: [image] },
+  };
 }
 
 const KIND_LABEL: Record<StoryThread["kind"], string> = { research: "What we found", another_side: "Another side", update: "Update", correction: "Correction", context: "Context", cixy_note: "Cixy's note" };

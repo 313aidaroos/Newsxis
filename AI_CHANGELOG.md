@@ -2,6 +2,19 @@
 
 Every AI model, bot or agent that changes anything in this repo appends a dated entry here (what + why).
 
+## 2026-10-14 — Grok: default Facebook Page URL
+- `facebookPageUrl` uses `https://www.facebook.com/profile.php?id=61595105653913` when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is unset or blank. A set value still overrides it. The https check accepts `profile.php?id=` (host facebook.com, m.facebook.com, or fb.com, pathname not bare `/`). An invalid override stays unlinked and does not fall back to the default.
+- Facebook's page plugin does not render `profile.php`, so About shows the address as a link and skips the iframe. A vanity Page URL still embeds. No `sameAs` or other social-link list exists on this branch, so none was added.
+- Why: the owner supplied the live Page URL. The env slot remains the override.
+- Undo: revert commit `2505c99` on branch `cursor/launch-legal-seo-2a3f`. The pull request targets `master` and is not merged from this note.
+
+## 2026-10-14 — Grok: legal pages, SEO, Facebook slot, 13+ doors
+- `/terms` and `/privacy` are real pages (13+, AI label, corrections, emails and IPs kept for fraud, tax, and legal purposes). The footer and About link them. Root and story metadata include canonical URLs, Open Graph, and Twitter cards. `web/src/app/robots.ts` and `sitemap.ts` list the public pages.
+- The Facebook Page is a link and embed only when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is an https Facebook URL (`web/src/lib/public-site.ts`, `web/src/components/FacebookPage.tsx`). No URL is in the repo, so About shows the empty slot. The env name is in `web/.env.example`.
+- Sign-in links (`SignInWithApixis`, the post page, the family-feed skin, the wallet chip's Link Apixis ID) go to `/login`, where the 13+ checkbox sets the cookie. `/post` is session-protected. `/terms`, `/privacy`, and `/support` stay reachable for someone sent to onboarding.
+- Why: launch readiness. Newsxis keeps its own theme. No new signup path. No secrets.
+- Undo: revert commit `90278a3` on branch `cursor/launch-legal-seo-2a3f`. The pull request targets `master` and is not merged from this note.
+
 ## 2026-10-06 — Grok: Supabase advisor migration 004
 - New `supabase/migrations/004_advisor_fixes.sql`. 001–003 are unchanged. `profiles_public` is `security_invoker = true`. It reads `private.profile_directory()`, which returns only the public columns for people who are not banned and not age-blocked. A public read policy on `profiles` cannot hide columns, and the signed-in app still reads its own full row, so other people's home coordinates and Apixis ids stay off that table for anon (no policy) and for authenticated (own row, or an owner).
 - `set_updated_at`, `stories_near`, `is_owner` and every other public function have a fixed search path. `pg_trgm` moves to `extensions`. `handle_new_user` and `sync_owner_flags` are not executable by anon or authenticated; signup still runs as `supabase_auth_admin`, and the server keeps `take_request_allowance`. The 13 listed policies use `(select auth.uid())`. `reactions self` is insert, update and delete. Server-only tables have an explicit no-access policy. The listed foreign keys are indexed. Message membership checks qualify `messages.conversation_id` (an unqualified name bound to the inner alias and matched every conversation).

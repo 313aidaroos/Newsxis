@@ -4,8 +4,8 @@ import { createServerClient, type CookieMethodsServer } from "@supabase/ssr";
 // Refreshes the Supabase session on every request so people stay signed in; only /settings, /admin
 // and /post require a session (the rest of Newsxis is free to watch).
 // A signed-in person who has not answered the 13+ question is sent to /onboarding.
-const PROTECTED = ["/settings", "/admin", "/billing"];
-const AGE_OPEN = ["/onboarding", "/auth", "/login", "/api", "/about"];
+const PROTECTED = ["/settings", "/admin", "/billing", "/post"];
+const AGE_OPEN = ["/onboarding", "/auth", "/login", "/api", "/about", "/terms", "/privacy", "/support"];
 
 export async function middleware(req: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

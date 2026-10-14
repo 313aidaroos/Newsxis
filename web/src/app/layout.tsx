@@ -2,12 +2,27 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Nav } from "@/components/Nav";
+import { SITE_DESCRIPTION, SITE_NAME, publicSiteUrl } from "@/lib/public-site";
+
+const siteUrl = publicSiteUrl();
+const title = "Newsxis — real-time news for every place on Earth";
 
 export const metadata: Metadata = {
-  title: { default: "Newsxis — real-time news for every place on Earth", template: "%s · Newsxis" },
-  description: "Cixy listens to public radio and free news feeds around the world, writes the story, researches it, shows the other side, and reads it on air. By Apixis Dev LLC.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsxis.vercel.app"),
-  openGraph: { siteName: "Newsxis", type: "website" },
+  title: { default: title, template: "%s · Newsxis" },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  metadataBase: new URL(siteUrl),
+  alternates: { canonical: "/" },
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+    title,
+    description: SITE_DESCRIPTION,
+    url: siteUrl,
+    images: [{ url: "/icon.svg", alt: "Newsxis" }],
+  },
+  twitter: { card: "summary", title, description: SITE_DESCRIPTION },
+  robots: { index: true, follow: true },
   manifest: "/manifest.json",
 };
 export const viewport: Viewport = { themeColor: "#05070f", width: "device-width", initialScale: 1, viewportFit: "cover" };
@@ -21,6 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="nx-footer">
           <span>© {new Date().getFullYear()} Newsxis · Apixis Dev LLC</span>
           <a href="/about">About</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
           <a href="/about#ai">AI-generated label</a>
           <a href="/about#corrections">Corrections</a>
           <a href="/support">Support · Complaints · Takedowns</a>

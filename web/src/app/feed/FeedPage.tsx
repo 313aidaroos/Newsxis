@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { createFeedClient } from "@/feed-client/api";
 import { FeedView, type FeedSkin } from "@/feed-client/FeedView";
 import { GraphicMedia } from "@/components/GraphicMedia";
+import { apixisLoginHref } from "@/lib/public-site";
 import { StoryCard, ago } from "@/components/StoryCard";
 import type { Post, Story } from "@/lib/types";
 
@@ -14,7 +15,7 @@ const skin: FeedSkin = {
   button: "nx-btn", buttonSecondary: "nx-btn nx-btn-2", buttonSmall: "nx-btn-sm",
   chip: "nx-chip", aiChip: "nx-chip nx-chip-ai", input: "nx-input", label: "nx-label",
   muted: "nx-muted", alert: "nx-alert", notice: "nx-notice", empty: "nx-empty", listRow: "nx-station",
-  signInUrl: "/auth/apixis/start?next=%2Ffeed%3Ftab%3Dfamily",
+  signInUrl: apixisLoginHref("/feed?tab=family"),
   buyIxisUrl: "https://apixis-wallet.vercel.app/buy?product=newsxis",
 };
 
