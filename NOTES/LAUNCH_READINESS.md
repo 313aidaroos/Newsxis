@@ -1,6 +1,6 @@
 # Newsxis launch readiness
 
-Official launch: **1 January 2027**. Marketing starts **1 December 2026**. Beta is now. Facebook Page is live; its URL is not in this repo, so the site keeps a config slot (`NEXT_PUBLIC_FACEBOOK_PAGE_URL`).
+Official launch: **1 January 2027**. Marketing starts **1 December 2026**. Beta is now. Facebook Page is live at `https://www.facebook.com/profile.php?id=61595105653913`. That address is the default. `NEXT_PUBLIC_FACEBOOK_PAGE_URL` overrides it.
 
 Branch under review: `cursor/security-billing-safety-c08c` (PR #1, not merged). Master is the first build. Supabase `olwnstniusyyaswxboux` has migrations 001–004 applied. This note does not merge anything and does not change Vercel or Supabase settings.
 
@@ -13,7 +13,7 @@ Branch under review: `cursor/security-billing-safety-c08c` (PR #1, not merged). 
 - Security migrations 003 and 004 are in the repo. 001–004 are applied on the Newsxis project. Public reads are live stories, threads, briefings, and sources.
 - Terms (`/terms`) and privacy (`/privacy`) state 13+, the AI label, the correction policy, and that emails and IP addresses are kept for fraud, tax, and legal purposes.
 - Root metadata, story Open Graph and Twitter cards, `robots.txt`, and `sitemap.xml` are in the site.
-- The Facebook Page renders as a link and embed only when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is an https Facebook URL. Otherwise About shows the empty slot.
+- The Facebook Page links to `https://www.facebook.com/profile.php?id=61595105653913` when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is unset. A set env value overrides it and must still be https on facebook.com, m.facebook.com, or fb.com, including `profile.php?id=`. That profile form is a link on About. A vanity Page URL can still embed. An invalid override leaves the slot empty.
 - Socixis Social is a tab on `/feed` using the copied family feed client (`Apixis.dev /api/feed/*`).
 - X, Facebook, and Bluesky poster functions exist and the social cron is scheduled.
 
@@ -30,7 +30,7 @@ Branch under review: `cursor/security-billing-safety-c08c` (PR #1, not merged). 
 ### Needs Awad
 
 - Approve and merge PR #1 and the draft launch PRs. This work does not merge them.
-- Keys and dashboard env (values are not written here): `SUPABASE_SERVICE_ROLE_KEY` if still unset on Vercel, `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WORLD_KEY`, `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `CRON_SECRET` for production, `TOKEN_ENC_KEY`, `NEXT_PUBLIC_MAPTILER_KEY`, social tokens, and `NEXT_PUBLIC_FACEBOOK_PAGE_URL` once the Page address is pasted.
+- Keys and dashboard env (values are not written here): `SUPABASE_SERVICE_ROLE_KEY` if still unset on Vercel, `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WORLD_KEY`, `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `CRON_SECRET` for production, `TOKEN_ENC_KEY`, `NEXT_PUBLIC_MAPTILER_KEY`, social tokens, and `NEXT_PUBLIC_FACEBOOK_PAGE_URL` only if the Page address should override the built-in profile URL.
 - Supabase Auth dashboard: leaked-password protection, and the Auth connection cap if it should be a percentage instead of a fixed 10.
 - Vercel deployment protection is on for every deployment, including production. Changing that is a dashboard setting.
 - Apixis Wallet repo (not this repo): catalog SKUs `newsxis_reporter_activation`, `newsxis_reporter_monthly`, `newsxis_boost_story_onetime`, `newsxis_sponsor_briefing_onetime`, and the routes `POST /api/v1/checkout`, `POST /api/v1/subscribe`, `GET /api/v1/billing/payments`, `GET /api/v1/billing/subscriptions`, `POST /api/v1/billing/subscriptions/cancel`. Register the Newsxis callback and the Buy Ixis return host. Apixis.dev must allow client `newsxis` and issue the feed key.

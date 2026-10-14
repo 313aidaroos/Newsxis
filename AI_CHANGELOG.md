@@ -2,6 +2,12 @@
 
 Every AI model, bot or agent that changes anything in this repo appends a dated entry here (what + why).
 
+## 2026-10-14 — Grok: default Facebook Page URL
+- `facebookPageUrl` uses `https://www.facebook.com/profile.php?id=61595105653913` when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is unset or blank. A set value still overrides it. The https check accepts `profile.php?id=` (host facebook.com, m.facebook.com, or fb.com, pathname not bare `/`). An invalid override stays unlinked and does not fall back to the default.
+- Facebook's page plugin does not render `profile.php`, so About shows the address as a link and skips the iframe. A vanity Page URL still embeds. No `sameAs` or other social-link list exists on this branch, so none was added.
+- Why: the owner supplied the live Page URL. The env slot remains the override.
+- Undo: revert this commit on branch `cursor/launch-legal-seo-2a3f`. The pull request stays a draft and is not merged from this note.
+
 ## 2026-10-14 — Grok: legal pages, SEO, Facebook slot, 13+ doors
 - `/terms` and `/privacy` are real pages (13+, AI label, corrections, emails and IPs kept for fraud, tax, and legal purposes). The footer and About link them. Root and story metadata include canonical URLs, Open Graph, and Twitter cards. `web/src/app/robots.ts` and `sitemap.ts` list the public pages.
 - The Facebook Page is a link and embed only when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is an https Facebook URL (`web/src/lib/public-site.ts`, `web/src/components/FacebookPage.tsx`). No URL is in the repo, so About shows the empty slot. The env name is in `web/.env.example`.
