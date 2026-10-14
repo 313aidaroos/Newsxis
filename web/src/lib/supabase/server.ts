@@ -64,5 +64,6 @@ export type Profile = {
   home_lat: number | null; home_lng: number | null; lang: string; show_graphic_media: boolean; alerts_push: boolean; alerts_email: boolean;
   alert_min_severity: number; reporter_points: number; verified_reporter: boolean; reporter_active_until: string | null;
   activated_at: string | null; is_owner: boolean; banned: boolean; age_confirmed_at: string | null; age_blocked: boolean;
+  daily_report_opt_in?: boolean;
   created_at: string; updated_at: string;
 };

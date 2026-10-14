@@ -4,7 +4,7 @@ Do these in order. Each one is a copy/paste. Nothing is faked: the site shows ex
 
 ## 1. Supabase (the database) — ~$10/month
 1. supabase.com → Apixis Dev LLC org → **New project** → name `newsxis`, region `us-east-1`, strong password.
-2. SQL Editor → paste `supabase/migrations/001_newsxis.sql` → Run. Then `002_seed_sources.sql` → Run. Then `003_security.sql` → Run. 003 is required: it locks admin flags, post publishing, private profile fields, and media uploads.
+2. SQL Editor → paste `supabase/migrations/001_newsxis.sql` → Run. Then `002_seed_sources.sql`, `003_security.sql`, `004_advisor_fixes.sql`, `005_receipts.sql`, and `006_daily_report.sql`. 003 locks admin flags, post publishing, private profile fields, and media uploads. 006 is the opt-in daily report.
 3. Project Settings → API: copy **Project URL**, **anon key**, **service_role key**.
 4. Authentication → URL configuration: Site URL = your Vercel URL; add `https://<vercel-url>/auth/apixis/callback` to redirect URLs.
 

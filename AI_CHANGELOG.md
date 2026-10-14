@@ -2,6 +2,13 @@
 
 Every AI model, bot or agent that changes anything in this repo appends a dated entry here (what + why).
 
+## 2026-10-14 — Grok: Socixis flag, daily report, social gate
+- Socixis Social stays a tab and renders the family feed client only when `APIXIS_WORLD_KEY` is set or `SOCIXIS_FEED=on`. Otherwise the tab says the feed is not connected. The feed-client copy is not edited.
+- Opt-in daily report at 8:00 PM America/Chicago. `supabase/migrations/006_daily_report.sql` adds `profiles.daily_report_opt_in` and `daily_reports`. The cron is hourly and writes only in that hour. A model script is labeled "Written by Cixy · AI-generated daily report". No stories means one true sentence that is not called model writing. Stories with no model return 503 and write nothing. Account has the checkbox. `/report` lists the person's rows. The migration is not applied to the live project.
+- Social queue skips an account when X, Facebook, or Bluesky keys are missing, and leaves the story queued. X posts use the v2 media upload and still send text if the image fails. Social text is hard-capped at the platform limit.
+- Why: launch items that do not need new secrets. Missing keys must not burn the queue. A missing feed must not look like an empty social network.
+- Undo: revert commit `87fc6a5` on branch `cursor/feed-report-social-2a3f`. The pull request targets `cursor/billing-receipts-sponsor-2a3f` and is not merged from this note.
+
 ## 2026-10-14 — Grok: receipts and the sponsor item
 - A Wallet purchase that returns a receipt is stored on `revenue_events` (existing table, `note` says card or Ixis). `/billing` merges those rows with Wallet history and does not invent rows when the Wallet history route is missing. `/billing/receipt/[id]` is the receipt. The sponsor item (5,000 Ixis, $50) can be bought with a card through Wallet Checkout or with Ixis through redeem.
 - Migration `supabase/migrations/005_receipts.sql` lets the buyer read their own rows and adds `method`. It is not applied to the live project. Prices and the no-Stripe rule are unchanged.

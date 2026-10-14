@@ -1,5 +1,17 @@
 # Grok notes
 
+## 2026-10-14 — Socixis flag, daily report, social gate
+
+Branch `cursor/feed-report-social-2a3f`, stacked on `cursor/billing-receipts-sponsor-2a3f`. Do not merge from this note. Do not apply `006_daily_report.sql` to project `olwnstniusyyaswxboux` from here.
+
+`socixisFeedEnabled` is off when `SOCIXIS_FEED=off`, on when `SOCIXIS_FEED=on`, and otherwise follows whether `APIXIS_WORLD_KEY` is set. The tab is still on `/feed`. The copied `feed-client` files are untouched.
+
+The daily report cron is `5 * * * *` because Vercel cron is UTC. `isEightPmCentral` uses `America/Chicago`, so 8:00 PM is 01:00 UTC in daylight time and 02:00 UTC in standard time. Opt-in defaults off. The checkbox save returns `daily_report_not_ready` until 006 is applied, and the page says so.
+
+`runSocialQueue` counts `skipped` and does not set `social_posts.status` to failed when the reason is `*_not_configured`, `*_not_connected`, or `credentials_unreadable`. X media goes to `https://api.x.com/2/media/upload`. A bad upload returns null and the tweet is text only.
+
+Undo: revert commit `87fc6a5` on `cursor/feed-report-social-2a3f`.
+
 ## 2026-10-14 — Receipts and the sponsor item
 
 Branch `cursor/billing-receipts-sponsor-2a3f`, stacked on `cursor/launch-legal-seo-2a3f`. Do not merge from this note. Do not apply `005_receipts.sql` to project `olwnstniusyyaswxboux` from here.

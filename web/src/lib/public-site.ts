@@ -5,7 +5,7 @@ export const SITE_NAME = "Newsxis";
 export const SITE_DESCRIPTION =
   "Cixy listens to public radio and free news feeds around the world, writes the story, researches it, shows the other side, and reads it on air. By Apixis Dev LLC.";
 
-export const PUBLIC_PATHS = ["/", "/feed", "/radio", "/briefing", "/about", "/support", "/terms", "/privacy", "/login"] as const;
+export const PUBLIC_PATHS = ["/", "/feed", "/radio", "/briefing", "/report", "/about", "/support", "/terms", "/privacy", "/login", "/billing"] as const;
 
 export function publicSiteUrl(raw = process.env.NEXT_PUBLIC_SITE_URL): string {
   const value = (raw ?? "https://newsxis.vercel.app").trim();

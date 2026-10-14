@@ -21,7 +21,7 @@ const skin: FeedSkin = {
 
 type Tab = "news" | "reporters" | "family";
 
-export function FeedPage({ showGraphic = false }: { showGraphic?: boolean }) {
+export function FeedPage({ showGraphic = false, family = "off" }: { showGraphic?: boolean; family?: "on" | "off" }) {
   const params = useSearchParams();
   const [tab, setTab] = useState<Tab>((params.get("tab") as Tab) || "news");
   const [stories, setStories] = useState<Story[]>([]);
@@ -90,7 +90,13 @@ export function FeedPage({ showGraphic = false }: { showGraphic?: boolean }) {
           ))}
         </div>
       )}
-      {tab === "family" && <FeedView client={client} skin={skin} siteName="Newsxis" />}
+      {tab === "family" && family === "on" && <FeedView client={client} skin={skin} siteName="Newsxis" />}
+      {tab === "family" && family === "off" && (
+        <div className="nx-card">
+          <h3>Socixis Social</h3>
+          <p>This tab is the shared Apixis feed, a thin client of Apixis.dev. It is off on this site until that feed is connected. Newsxis stories stay on the other tabs. Nothing is filled in here.</p>
+        </div>
+      )}
     </div>
   );
 }

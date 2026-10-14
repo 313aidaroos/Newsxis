@@ -5,6 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decrypt } from "@/lib/crypto";
 import { socialText } from "@/lib/ai/social-text";
+import { isConfigSkip, socialEnv, socialSkipReason } from "@/lib/social/gate";
 import type { Story } from "@/lib/types";
 
 export type Posted = { id: string; url: string | null };
@@ -43,18 +44,29 @@ function linkFacets(text: string) {
 export async function postX(creds: Creds, text: string, image: Buffer | null): Promise<Posted> {
   const token = creds.access_token;
   if (!token) throw new Error("x_not_connected");
-  let media_ids: string[] | undefined;
-  if (image) {
-    // v2 media upload (chunked endpoint accepts a single small PNG in one INIT/APPEND/FINALIZE; keep it simple with the legacy simple upload)
-    const form = new FormData(); form.append("media_data", image.toString("base64")); form.append("media_category", "tweet_image");
-    const up = await fetch("https://upload.twitter.com/1.1/media/upload.json", { method: "POST", headers: { authorization: `Bearer ${token}` }, body: form });
-    const j = await up.json().catch(() => ({})) as { media_id_string?: string };
-    if (j.media_id_string) media_ids = [j.media_id_string];
-  }
-  const res = await fetch("https://api.x.com/2/tweets", { method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json" }, body: JSON.stringify({ text, ...(media_ids ? { media: { media_ids } } : {}) }) });
+  const mediaId = image ? await uploadXImage(token, image) : null;
+  const res = await fetch("https://api.x.com/2/tweets", {
+    method: "POST",
+    headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+    body: JSON.stringify({ text, ...(mediaId ? { media: { media_ids: [mediaId] } } : {}) }),
+  });
   const j = await res.json().catch(() => ({})) as { data?: { id: string }; detail?: string; title?: string };
   if (!res.ok || !j.data?.id) throw new Error(`x post ${res.status}: ${j.detail ?? j.title ?? "failed"}`);
   return { id: j.data.id, url: creds.username ? `https://x.com/${creds.username}/status/${j.data.id}` : null };
+}
+
+/** v2 media upload. A failed card does not fail the post; the text still goes out. */
+async function uploadXImage(token: string, image: Buffer): Promise<string | null> {
+  try {
+    const form = new FormData();
+    form.append("media", new Blob([new Uint8Array(image)], { type: "image/png" }), "card.png");
+    form.append("media_category", "tweet_image");
+    const up = await fetch("https://api.x.com/2/media/upload", { method: "POST", headers: { authorization: `Bearer ${token}` }, body: form });
+    const j = await up.json().catch(() => ({})) as { data?: { id?: string }; id?: string };
+    return j.data?.id ?? j.id ?? null;
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------- Facebook Page (Graph API, page token)
@@ -74,10 +86,23 @@ export async function postFacebook(creds: Creds, text: string, imageUrl: string 
 // ---------------------------------------------------------------- queue runner
 type Account = { id: string; platform: "x" | "facebook" | "bluesky"; handle: string; credentials: string | null; min_gap_seconds: number; last_posted_at: string | null };
 
-export async function runSocialQueue(db: SupabaseClient, siteUrl: string, limit = 6): Promise<{ posted: number; failed: number; waiting: number }> {
-  const out = { posted: 0, failed: 0, waiting: 0 };
+export async function runSocialQueue(db: SupabaseClient, siteUrl: string, limit = 6): Promise<{ posted: number; failed: number; waiting: number; skipped: number }> {
+  const out = { posted: 0, failed: 0, waiting: 0, skipped: 0 };
+  const env = socialEnv();
   const { data: accounts } = await db.from("social_accounts").select("*").eq("active", true);
   for (const a of (accounts ?? []) as Account[]) {
+    let creds: Creds = {};
+    let skip: string | null = null;
+    if (a.credentials) {
+      try { creds = decrypt<Creds>(a.credentials); }
+      catch { skip = "credentials_unreadable"; }
+    }
+    if (!skip) skip = socialSkipReason(a.platform, creds, env);
+    if (skip) {
+      await db.from("social_accounts").update({ last_error: skip }).eq("id", a.id);
+      out.skipped++;
+      continue;
+    }
     const gapOk = !a.last_posted_at || Date.now() - Date.parse(a.last_posted_at) >= a.min_gap_seconds * 1000;
     const { data: queue } = await db.from("social_posts").select("id, story:stories(*)").eq("account_id", a.id).eq("status", "queued").order("created_at", { ascending: true }).limit(limit);
     if (!queue?.length) continue;
@@ -87,8 +112,6 @@ export async function runSocialQueue(db: SupabaseClient, siteUrl: string, limit 
     const text = socialText(next.story, siteUrl, a.platform);
     const cardUrl = `${siteUrl.replace(/\/$/, "")}/api/card/${next.story.slug}`;
     try {
-      let creds: Creds = {};
-      if (a.credentials) creds = decrypt<Creds>(a.credentials);
       let card: Buffer | null = null;
       if (a.platform !== "facebook") {
         try { const r = await fetch(cardUrl, { signal: AbortSignal.timeout(15_000) }); if (r.ok) card = Buffer.from(await r.arrayBuffer()); } catch { card = null; }
@@ -100,8 +123,14 @@ export async function runSocialQueue(db: SupabaseClient, siteUrl: string, limit 
       await db.from("social_accounts").update({ last_posted_at: new Date().toISOString(), last_error: null }).eq("id", a.id);
       out.posted++;
     } catch (e) {
-      await db.from("social_posts").update({ status: "failed", text, error: (e as Error).message.slice(0, 500) }).eq("id", next.id);
-      await db.from("social_accounts").update({ last_error: (e as Error).message.slice(0, 500) }).eq("id", a.id);
+      const message = (e as Error).message.slice(0, 500);
+      if (isConfigSkip(message)) {
+        await db.from("social_accounts").update({ last_error: message }).eq("id", a.id);
+        out.skipped++;
+        continue;
+      }
+      await db.from("social_posts").update({ status: "failed", text, error: message }).eq("id", next.id);
+      await db.from("social_accounts").update({ last_error: message }).eq("id", a.id);
       out.failed++;
     }
   }

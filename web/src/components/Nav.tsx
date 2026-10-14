@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApixisWalletChip } from "./ApixisWalletChip";
 
-const LINKS: Array<[string, string]> = [["/", "Globe"], ["/feed", "Feed"], ["/radio", "Radio"], ["/briefing", "Cixy"], ["/post", "Post"]];
+const LINKS: Array<[string, string]> = [["/", "Globe"], ["/feed", "Feed"], ["/radio", "Radio"], ["/briefing", "Cixy"], ["/report", "Report"], ["/post", "Post"]];
 
 export function Nav() {
   const path = usePathname();
