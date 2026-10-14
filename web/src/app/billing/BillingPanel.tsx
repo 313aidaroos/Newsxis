@@ -47,13 +47,12 @@ export function BillingPanel() {
   const [data, setData] = useState<Payload | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [sponsorName, setSponsorName] = useState("");
+  const [sponsorMethod, setSponsorMethod] = useState<"card" | "ixis">("card");
 
   useEffect(() => {
     fetch("/api/billing", { cache: "no-store" }).then((r) => r.json()).then(setData).catch(() => setData(null));
   }, []);
-
-  const [sponsorName, setSponsorName] = useState("");
-  const [sponsorMethod, setSponsorMethod] = useState<"card" | "ixis">("card");
 
   const sponsor = async () => {
     setBusy(true); setMsg(null);

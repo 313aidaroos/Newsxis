@@ -16,6 +16,7 @@ export const PROFILE_EDITABLE = [
   "alerts_push",
   "alerts_email",
   "alert_min_severity",
+  "daily_report_opt_in",
 ] as const;
 
 export type ProfileEditable = (typeof PROFILE_EDITABLE)[number];
@@ -44,6 +45,7 @@ export function profilePatch(body: Record<string, unknown>): { patch: Record<str
     if ((patch.username as string).length < 3) return { patch, error: "username_too_short" };
   }
   if ("show_graphic_media" in patch) patch.show_graphic_media = patch.show_graphic_media === true;
+  if ("daily_report_opt_in" in patch) patch.daily_report_opt_in = patch.daily_report_opt_in === true;
   if ("alert_min_severity" in patch) {
     const n = Number(patch.alert_min_severity);
     patch.alert_min_severity = n === 3 || n === 4 || n === 5 ? n : 4;

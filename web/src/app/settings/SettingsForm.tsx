@@ -10,7 +10,8 @@ export function SettingsForm({ profile }: { profile: Profile }) {
   const save = async (patch: Partial<Profile>) => {
     setMsg(null);
     const r = await fetch("/api/me", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(patch) }).then((x) => x.json());
-    if (r.ok) { setP(r.profile); setMsg("Saved."); } else setMsg(r.error === "username_taken" ? "That username is taken." : r.error ?? "Could not save.");
+    if (r.ok) { setP(r.profile); setMsg("Saved."); }
+    else setMsg(r.error === "username_taken" ? "That username is taken." : r.error === "daily_report_not_ready" ? "The daily report setting is waiting on a database update that has not been applied yet." : r.error ?? "Could not save.");
   };
   const setHome = async () => {
     const hit = await geocode(place).catch(() => null);
@@ -38,6 +39,7 @@ export function SettingsForm({ profile }: { profile: Profile }) {
       <div className="nx-card">
         <h3>Content & alerts</h3>
         <label className="nx-layer" style={{ marginTop: 10 }}><input type="checkbox" checked={p.show_graphic_media} onChange={(e) => save({ show_graphic_media: e.target.checked })} /> Show graphic news media. Off by default. On keeps it blurred until you hover.</label>
+        <label className="nx-layer"><input type="checkbox" checked={p.daily_report_opt_in === true} onChange={(e) => save({ daily_report_opt_in: e.target.checked })} /> Daily report at 8:00 PM Central. Opt in. Labeled AI when Cixy writes it. Read it on <a href="/report">Reports</a>.</label>
         <label className="nx-label" style={{ marginTop: 10 }}>Alert me from severity
           <select className="nx-select" value={p.alert_min_severity} onChange={(e) => save({ alert_min_severity: Number(e.target.value) })}><option value={3}>Major</option><option value={4}>Critical</option><option value={5}>Breaking only</option></select>
         </label>

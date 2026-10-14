@@ -31,6 +31,10 @@ export async function PATCH(request: Request) {
   if (Object.keys(parsed.patch).length === 0) return fail("nothing_to_save");
   const db = await supabaseUser();
   const { data, error } = await db.from("profiles").update(parsed.patch).eq("id", user.id).select("*").single();
-  if (error) return fail(error.message.includes("unique") ? "username_taken" : error.message, 400);
+  if (error) {
+    if (error.message.includes("unique")) return fail("username_taken", 400);
+    if (/daily_report_opt_in/.test(error.message)) return fail("daily_report_not_ready", 503);
+    return fail(error.message, 400);
+  }
   return json({ ok: true, profile: data });
 }
