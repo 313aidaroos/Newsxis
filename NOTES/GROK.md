@@ -6,7 +6,7 @@ Branch `cursor/launch-legal-seo-2a3f` (PR #2). Do not merge from this note.
 
 `NEXT_PUBLIC_FACEBOOK_PAGE_URL` still wins when it is set. Unset or blank uses `https://www.facebook.com/profile.php?id=61595105653913`. `facebookPageUrl` accepts that `profile.php?id=` form. `facebookPageEmbeds` is false for `/profile.php`, so About renders the link and not the page plugin. There is no `sameAs` list and no social-link array in the layout, so the URL was not added to one.
 
-Undo: revert this commit on `cursor/launch-legal-seo-2a3f`.
+Undo: revert commit `58ec70f` on `cursor/launch-legal-seo-2a3f`.
 
 ## 2026-10-14 — Legal pages, SEO, Facebook slot, 13+ doors
 
