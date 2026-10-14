@@ -37,12 +37,12 @@ export function SettingsForm({ profile }: { profile: Profile }) {
       </div>
       <div className="nx-card">
         <h3>Content & alerts</h3>
-        <label className="nx-layer" style={{ marginTop: 10 }}><input type="checkbox" checked={p.show_graphic_media} onChange={(e) => save({ show_graphic_media: e.target.checked })} /> Show graphic news media (blurred until hover). Off hides it entirely.</label>
+        <label className="nx-layer" style={{ marginTop: 10 }}><input type="checkbox" checked={p.show_graphic_media} onChange={(e) => save({ show_graphic_media: e.target.checked })} /> Show graphic news media. Off by default. On keeps it blurred until you hover.</label>
         <label className="nx-label" style={{ marginTop: 10 }}>Alert me from severity
           <select className="nx-select" value={p.alert_min_severity} onChange={(e) => save({ alert_min_severity: Number(e.target.value) })}><option value={3}>Major</option><option value={4}>Critical</option><option value={5}>Breaking only</option></select>
         </label>
         <label className="nx-label">Language<select className="nx-select" value={p.lang} onChange={(e) => save({ lang: e.target.value })}><option value="en">English</option><option value="es">Español</option></select></label>
-        <div className="nx-actions"><button type="button" className="nx-btn nx-btn-2 nx-btn-sm" onClick={alerts}>Turn on email alerts</button><a className="nx-btn nx-btn-2 nx-btn-sm" href="/post">Reporter seat</a></div>
+        <div className="nx-actions"><button type="button" className="nx-btn nx-btn-2 nx-btn-sm" onClick={alerts}>Turn on email alerts</button><a className="nx-btn nx-btn-2 nx-btn-sm" href="/post">Reporter seat</a><a className="nx-btn nx-btn-2 nx-btn-sm" href="/billing">Billing</a></div>
       </div>
       {msg && <div className="nx-notice">{msg}</div>}
     </div>

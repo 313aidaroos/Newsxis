@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Post, Source, Story } from "@/lib/types";
+import { feedReasonFetches, HOME_REFRESH_MS, VIEW_PAN_DEBOUNCE_MS, type FeedReason } from "@/lib/home-feed";
 import { StoryCard } from "./StoryCard";
 import { geocode, type Layers } from "./Globe";
 
@@ -22,7 +23,16 @@ export function Home({ initialStories, initialStations, showGraphic }: { initial
   const [q, setQ] = useState("");
   const [narration, setNarration] = useState<{ text: string | null; loading: boolean; error: string | null } | null>(null);
   const [mode, setMode] = useState<"world" | "view">("world");
-  const refresh = useRef<number | null>(null);
+  const modeRef = useRef(mode);
+  const viewRef = useRef(view);
+  const hoursRef = useRef(hoursBack);
+  const sevRef = useRef(minSev);
+  const req = useRef(0);
+  const modeMounted = useRef(false);
+  modeRef.current = mode;
+  viewRef.current = view;
+  hoursRef.current = hoursBack;
+  sevRef.current = minSev;
 
   // Deep links: /?lat=&lng=&z=
   useEffect(() => {
@@ -30,31 +40,44 @@ export function Home({ initialStories, initialStations, showGraphic }: { initial
     if (Number.isFinite(lat) && Number.isFinite(lng) && params.get("lat")) setFocus({ lat, lng, zoom: Number(params.get("z") ?? 9) });
   }, [params]);
 
-  const load = useCallback(async () => {
-    const since = new Date(Date.now() - hoursBack * 3600e3).toISOString();
-    const inView = mode === "view" && view && view.zoom >= 3;
-    const bbox = inView ? `&bbox=${view!.bbox.join(",")}` : "";
+  const load = useCallback(async (reason: FeedReason) => {
+    const modeNow = modeRef.current;
+    if (!feedReasonFetches(reason, modeNow)) return;
+    const viewNow = viewRef.current;
+    const since = new Date(Date.now() - hoursRef.current * 3600e3).toISOString();
+    const inView = modeNow === "view" && viewNow && viewNow.zoom >= 3;
+    const bbox = inView ? `&bbox=${viewNow.bbox.join(",")}` : "";
+    const id = ++req.current;
     const [s, p] = await Promise.all([
-      fetch(`/api/stories?since=${since}&min_severity=${minSev}&limit=400${bbox}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ items: [] })),
-      fetch(`/api/posts?limit=100${inView ? `&bbox=${view!.bbox.join(",")}` : ""}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ items: [] })),
+      fetch(`/api/stories?since=${since}&min_severity=${sevRef.current}&limit=400${bbox}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ items: [] })),
+      fetch(`/api/posts?limit=100${inView ? `&bbox=${viewNow.bbox.join(",")}` : ""}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ items: [] })),
     ]);
+    if (id !== req.current) return;
     setStories(s.items ?? []); setPosts(p.items ?? []);
-  }, [hoursBack, minSev, mode, view]);
+  }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { void load("filter"); }, [hoursBack, minSev, load]);
   useEffect(() => {
-    refresh.current = window.setInterval(load, 45_000);
-    return () => { if (refresh.current) window.clearInterval(refresh.current); };
+    if (!modeMounted.current) { modeMounted.current = true; return; }
+    void load("mode");
+  }, [mode, load]);
+  useEffect(() => {
+    const id = window.setTimeout(() => { void load("pan"); }, VIEW_PAN_DEBOUNCE_MS);
+    return () => window.clearTimeout(id);
+  }, [view, load]);
+  useEffect(() => {
+    const id = window.setInterval(() => { void load("refresh"); }, HOME_REFRESH_MS);
+    return () => window.clearInterval(id);
   }, [load]);
 
   const visible = useMemo(() => {
-    const list = stories.filter((s) => (showGraphic || !s.graphic));
+    const list = stories;
     if (mode === "view" && view) {
       const [w, so, e, n] = view.bbox;
       return list.filter((s) => s.lat !== null && s.lng !== null && s.lat >= so && s.lat <= n && (w <= e ? s.lng >= w && s.lng <= e : s.lng >= w || s.lng <= e));
     }
     return list;
-  }, [stories, mode, view, showGraphic]);
+  }, [stories, mode, view]);
 
   const search = async (e: React.FormEvent) => {
     e.preventDefault();

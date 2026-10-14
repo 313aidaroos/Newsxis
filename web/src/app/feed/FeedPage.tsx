@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createFeedClient } from "@/feed-client/api";
 import { FeedView, type FeedSkin } from "@/feed-client/FeedView";
+import { GraphicMedia } from "@/components/GraphicMedia";
 import { StoryCard, ago } from "@/components/StoryCard";
 import type { Post, Story } from "@/lib/types";
 
@@ -19,7 +20,7 @@ const skin: FeedSkin = {
 
 type Tab = "news" | "reporters" | "family";
 
-export function FeedPage() {
+export function FeedPage({ showGraphic = false }: { showGraphic?: boolean }) {
   const params = useSearchParams();
   const [tab, setTab] = useState<Tab>((params.get("tab") as Tab) || "news");
   const [stories, setStories] = useState<Story[]>([]);
@@ -50,7 +51,7 @@ export function FeedPage() {
   return (
     <div>
       <div className="nx-tabs" role="tablist">
-        {(["news", "reporters", "family"] as Tab[]).map((k) => <button key={k} type="button" role="tab" className={tab === k ? "active" : ""} aria-selected={tab === k} onClick={() => setTab(k)}>{k === "news" ? "Cixy · News" : k === "reporters" ? "Reporters" : "Apixis family"}</button>)}
+        {(["news", "reporters", "family"] as Tab[]).map((k) => <button key={k} type="button" role="tab" className={tab === k ? "active" : ""} aria-selected={tab === k} onClick={() => setTab(k)}>{k === "news" ? "Cixy · News" : k === "reporters" ? "Reporters" : "Socixis Social"}</button>)}
       </div>
       {tab === "news" && (
         <div className="nx-grid" style={{ gridTemplateColumns: "minmax(0,1fr) 280px" }}>
@@ -81,10 +82,7 @@ export function FeedPage() {
               <p style={{ color: "var(--nx-ink)", whiteSpace: "pre-wrap" }}>{p.body}</p>
               {p.media?.length > 0 && (
                 <div className="nx-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))" }}>
-                  {p.media.map((m, i) => m.kind === "video" ? <video key={i} src={m.url} controls className={m.graphic ? "nx-blur" : ""} style={{ width: "100%", borderRadius: 10 }} />
-                    : m.kind === "audio" ? <audio key={i} src={m.url} controls style={{ width: "100%" }} />
-                    // eslint-disable-next-line @next/next/no-img-element
-                    : <img key={i} src={m.url} alt="" className={m.graphic ? "nx-blur" : ""} style={{ width: "100%", borderRadius: 10 }} />)}
+                  {p.media.map((m, i) => <GraphicMedia key={i} url={m.url} kind={m.kind} graphic={Boolean(m.graphic)} showGraphic={showGraphic} />)}
                 </div>
               )}
             </article>

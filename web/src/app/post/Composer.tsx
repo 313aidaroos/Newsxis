@@ -10,16 +10,33 @@ export function Composer({ activated, seatUntil, canPost, home, userId }: { acti
   const [place, setPlace] = useState(home.name ?? "");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(home.lat !== null && home.lng !== null ? { lat: home.lat, lng: home.lng } : null);
   const [media, setMedia] = useState<Media[]>([]);
+  const [method, setMethod] = useState<"card" | "ixis">("card");
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string; buy?: string } | null>(null);
+
+  const checkout = async () => {
+    setBusy("checkout"); setMsg(null);
+    const r = await fetch("/api/billing/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method }) }).then((x) => x.json()).catch(() => ({ ok: false, error: "network" }));
+    setBusy(null);
+    if (r.ok && r.url) { window.location.href = r.url; return; }
+    if (r.ok) { setMsg({ kind: "ok", text: "The Wallet accepted this Ixis plan. Your renewal date will show on Billing when the Wallet sends it." }); setTimeout(() => location.reload(), 900); return; }
+    if (r.gap === "endpoint_missing" || r.error === "not available") {
+      setMsg({ kind: "err", text: method === "card"
+        ? "Card checkout is coming soon. The Apixis Wallet has not shipped it yet, so nothing was charged. You can still pay with Ixis once, below. That charge does not auto-renew."
+        : "Ixis auto-renew is coming soon. The Wallet has not shipped subscriptions yet, so nothing was charged. You can still pay 1,000 Ixis once, below. That charge does not auto-renew." });
+      return;
+    }
+    setMsg({ kind: "err", text: r.message ?? r.error ?? "The Wallet could not start checkout. Nothing was charged." });
+  };
 
   const pay = async (productKey: "newsxis.activate" | "newsxis.reporter.monthly") => {
     setBusy(productKey); setMsg(null);
     const r = await fetch("/api/redeem", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ productKey, attemptId: crypto.randomUUID() }) }).then((x) => x.json()).catch(() => ({ ok: false, error: "network" }));
     setBusy(null);
-    if (r.ok) { setMsg({ kind: "ok", text: "Done. Your Ixis were redeemed through the Apixis Wallet." }); setTimeout(() => location.reload(), 900); }
+    if (r.ok) { setMsg({ kind: "ok", text: "Done. Your Ixis were redeemed through the Apixis Wallet. This charge does not auto-renew." }); setTimeout(() => location.reload(), 900); }
     else if (r.error === "insufficient_ixis") setMsg({ kind: "err", text: `You need ${r.needed ?? 1000} Ixis for this. Buy Ixis on the Apixis Wallet and come back.`, buy: r.buy });
     else if (r.error === "wallet_not_configured") setMsg({ kind: "err", text: "The Wallet connection is not set up on this site yet." });
+    else if (r.error === "age_required") setMsg({ kind: "err", text: "Confirm that you are 13 or older before paying." });
     else setMsg({ kind: "err", text: r.error ?? "Payment failed. Nothing was charged." });
   };
 
@@ -55,11 +72,20 @@ export function Composer({ activated, seatUntil, canPost, home, userId }: { acti
     <div className="nx-grid">
       <div className="nx-card">
         <div className="nx-card-head"><h3>Reporter seat</h3><span className={`nx-chip ${canPost ? "nx-chip-ok" : ""}`}>{canPost ? `Active${seatUntil ? ` until ${new Date(seatUntil).toLocaleDateString()}` : ""}` : activated ? "Seat expired" : "Not activated"}</span></div>
-        <p className="nx-muted">Posting costs <strong>1,000 Ixis ($10) once</strong> to activate, then <strong>1,000 Ixis a month</strong>. Paid from your one Apixis Wallet balance. Reporters earn points for live posts; verified reporters get the ✓.</p>
+        <p className="nx-muted">A reporter seat is <strong>$10 (1,000 Ixis) to activate</strong> plus <strong>$10 (1,000 Ixis) a month</strong>, auto-renewing, cancel any time. You choose card or Ixis. Both go through the Apixis Wallet. Newsxis never sees your card.</p>
+        <div className="nx-actions" style={{ marginBottom: 10 }}>
+          <label className="nx-layer"><input type="radio" name="pay" checked={method === "card"} onChange={() => setMethod("card")} /> Card</label>
+          <label className="nx-layer"><input type="radio" name="pay" checked={method === "ixis"} onChange={() => setMethod("ixis")} /> Ixis</label>
+        </div>
         <div className="nx-actions">
-          {!activated && <button className="nx-btn" type="button" disabled={busy !== null} onClick={() => pay("newsxis.activate")}>{busy === "newsxis.activate" ? "Redeeming…" : "Activate · 1,000 Ixis"}</button>}
-          {activated && <button className="nx-btn" type="button" disabled={busy !== null} onClick={() => pay("newsxis.reporter.monthly")}>{busy === "newsxis.reporter.monthly" ? "Redeeming…" : canPost ? "Add 30 days · 1,000 Ixis" : "Renew seat · 1,000 Ixis"}</button>}
+          <button className="nx-btn" type="button" disabled={busy !== null} onClick={checkout}>{busy === "checkout" ? "Contacting the Wallet…" : activated ? "Renew on the Wallet" : "Start reporter seat"}</button>
+          <a className="nx-btn nx-btn-2" href="/billing">Billing</a>
           <a className="nx-btn nx-btn-2" href="https://apixis-wallet.vercel.app/buy?product=newsxis">Buy Ixis</a>
+        </div>
+        <p className="nx-tiny" style={{ marginTop: 10 }}>Until the Wallet’s subscription checkout is live, a one-time Ixis payment still works. It does not auto-renew.</p>
+        <div className="nx-actions">
+          {!activated && <button className="nx-btn nx-btn-2" type="button" disabled={busy !== null} onClick={() => pay("newsxis.activate")}>{busy === "newsxis.activate" ? "Redeeming…" : "Activate once · 1,000 Ixis"}</button>}
+          {activated && <button className="nx-btn nx-btn-2" type="button" disabled={busy !== null} onClick={() => pay("newsxis.reporter.monthly")}>{busy === "newsxis.reporter.monthly" ? "Redeeming…" : "Add 30 days · 1,000 Ixis"}</button>}
         </div>
       </div>
       {msg && <div className={msg.kind === "ok" ? "nx-notice" : "nx-alert"}>{msg.text} {msg.buy && <a href={msg.buy} style={{ color: "var(--nx-accent)", fontWeight: 700 }}>Buy Ixis →</a>}</div>}

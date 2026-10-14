@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SeverityChip, StatusChip, ago } from "@/components/StoryCard";
 import { Comments } from "@/components/Comments";
+import { GraphicMedia } from "@/components/GraphicMedia";
+import { showGraphicMedia } from "@/lib/safety";
 import { currentProfile, supabaseConfigured, supabaseUser } from "@/lib/supabase/server";
 import { CATEGORY_LABEL, type Story, type StorySource, type StoryThread } from "@/lib/types";
 
@@ -35,7 +37,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   if (!d) notFound();
   const { story: s, threads, sources } = d;
   const { profile } = await currentProfile();
-  const showGraphic = profile?.show_graphic_media ?? true;
+  const showGraphic = showGraphicMedia(profile?.show_graphic_media);
   const place = [s.place_name ?? s.city, s.county, s.region, s.country].filter(Boolean).join(", ");
   return (
     <div className="nx-page nx-page-narrow">
@@ -49,10 +51,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       {s.source_quote && <blockquote className="nx-card" style={{ margin: "12px 0", fontStyle: "italic", color: "var(--nx-ink2)" }}>“{s.source_quote}”<div className="nx-tiny" style={{ marginTop: 6, fontStyle: "normal" }}>— {s.ai_label.replace("Written by Cixy from ", "")}</div></blockquote>}
       {s.media?.length > 0 && (
         <div className="nx-grid nx-grid-2" style={{ margin: "12px 0" }}>
-          {s.media.map((m, i) => (m.kind === "video" ? <video key={i} src={m.url} controls className={m.graphic && !showGraphic ? "nx-blur" : ""} style={{ width: "100%", borderRadius: 12 }} />
-            // eslint-disable-next-line @next/next/no-img-element
-            : <img key={i} src={m.url} alt="" className={m.graphic && !showGraphic ? "nx-blur" : ""} style={{ width: "100%", borderRadius: 12 }} />))}
-          {s.graphic && <p className="nx-tiny">Graphic news media is blurred until you hover. Turn it off in <Link href="/settings">settings</Link>.</p>}
+          {s.media.map((m, i) => <GraphicMedia key={i} url={m.url} kind={m.kind} graphic={Boolean(m.graphic || s.graphic)} showGraphic={showGraphic} />)}
+          {s.graphic && showGraphic && <p className="nx-tiny">Graphic news media stays blurred until you hover. Turn it off in <Link href="/settings">settings</Link>.</p>}
+          {s.graphic && !showGraphic && <p className="nx-tiny">Graphic media is hidden. <Link href="/settings">Settings</Link> can turn it on.</p>}
         </div>
       )}
       <div className="nx-story-foot" style={{ margin: "10px 0 6px" }}>

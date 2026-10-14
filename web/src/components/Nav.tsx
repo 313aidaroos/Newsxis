@@ -22,6 +22,7 @@ export function Nav() {
       <div className="nx-nav-right">
         <span className="nx-live">Live</span>
         <ApixisWalletChip />
+        {me?.signedIn ? <Link href="/billing" className="nx-btn nx-btn-2 nx-btn-sm">Billing</Link> : null}
         {me?.signedIn ? <Link href="/settings" className="nx-btn nx-btn-2 nx-btn-sm">Account</Link> : <Link href="/login" className="nx-btn nx-btn-sm">Sign in</Link>}
       </div>
     </header>
