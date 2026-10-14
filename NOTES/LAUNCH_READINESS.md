@@ -13,6 +13,7 @@ Branch under review: `cursor/launch-legal-seo-2a3f` (PR #2). Base is `master`, w
 - Security migrations 003 and 004 are in the repo. 001–004 are applied on the Newsxis project. Public reads are live stories, threads, briefings, and sources.
 - Terms (`/terms`) and privacy (`/privacy`) state 13+, the AI label, the correction policy, and that emails and IP addresses are kept for fraud, tax, and legal purposes.
 - Root metadata, story Open Graph and Twitter cards, `robots.txt`, and `sitemap.xml` are in the site.
+- A completed Wallet purchase is written to `revenue_events` and shown on `/billing`, with a receipt page at `/billing/receipt/[id]`. The sponsor item is 5,000 Ixis ($50): card goes to Wallet Checkout, Ixis uses Wallet redeem. If the Wallet route is missing, the page says so and does not invent a payment. `005_receipts.sql` adds a buyer read policy. Receipts record without it, using columns from migration 001. It is not applied to the live database from this repo.
 - The Facebook Page links to `https://www.facebook.com/profile.php?id=61595105653913` when `NEXT_PUBLIC_FACEBOOK_PAGE_URL` is unset. A set env value overrides it and must still be https on facebook.com, m.facebook.com, or fb.com, including `profile.php?id=`. That profile form is a link on About. A vanity Page URL can still embed. An invalid override leaves the slot empty.
 - Socixis Social is a tab on `/feed` using the copied family feed client (`Apixis.dev /api/feed/*`).
 - X, Facebook, and Bluesky poster functions exist and the social cron is scheduled.
@@ -21,7 +22,6 @@ Branch under review: `cursor/launch-legal-seo-2a3f` (PR #2). Base is `master`, w
 
 ### Agent can do
 
-- Record a receipt for every completed Wallet purchase and show it on the billing history page, including the sponsor item, without inventing rows when the Wallet is down.
 - Put the Socixis Social tab behind a flag when `APIXIS_WORLD_KEY` is missing, so the tab does not call a feed that is not connected.
 - Opt-in daily report at 8:00 PM America/Chicago, labeled AI, written only from stories already on the site.
 - Leave social posts queued when X, Facebook, or Bluesky keys are missing, and keep X text inside the platform limit.

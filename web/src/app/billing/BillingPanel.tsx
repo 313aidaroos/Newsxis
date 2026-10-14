@@ -52,6 +52,27 @@ export function BillingPanel() {
     fetch("/api/billing", { cache: "no-store" }).then((r) => r.json()).then(setData).catch(() => setData(null));
   }, []);
 
+  const [sponsorName, setSponsorName] = useState("");
+  const [sponsorMethod, setSponsorMethod] = useState<"card" | "ixis">("card");
+
+  const sponsor = async () => {
+    setBusy(true); setMsg(null);
+    const r = sponsorMethod === "card"
+      ? await fetch("/api/billing/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method: "card", product: "newsxis.sponsor.briefing" }) }).then((x) => x.json()).catch(() => ({ ok: false, message: "Could not reach the Wallet." }))
+      : await fetch("/api/redeem", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ productKey: "newsxis.sponsor.briefing", attemptId: crypto.randomUUID(), sponsorName }) }).then((x) => x.json()).catch(() => ({ ok: false, message: "Could not reach the Wallet." }));
+    setBusy(false);
+    if (r.ok && r.url) { window.location.href = r.url; return; }
+    if (r.ok) {
+      setMsg(r.receiptUrl ? `Sponsor purchase recorded. Receipt: ${r.receiptUrl}` : "The Wallet accepted this sponsor purchase. The receipt is on this page.");
+      const fresh = await fetch("/api/billing", { cache: "no-store" }).then((x) => x.json()).catch(() => null);
+      if (fresh) setData(fresh);
+      return;
+    }
+    setMsg(r.gap === "endpoint_missing"
+      ? "Card checkout for a sponsor is not available yet. The Wallet has not shipped it, so nothing was charged."
+      : r.message ?? r.error ?? "The Wallet could not start this purchase. Nothing was charged.");
+  };
+
   const cancel = async () => {
     setBusy(true); setMsg(null);
     const r = await fetch("/api/billing/cancel", { method: "POST" }).then((x) => x.json()).catch(() => ({ ok: false, message: "Could not reach the Wallet." }));
@@ -104,9 +125,19 @@ export function BillingPanel() {
         )}
         {!data.paymentsKnown && (
           <div className="nx-notice">
-            Payment history is coming soon. The Wallet does not have a billing-history route for sister sites yet, so this list is empty. Card charges and Ixis subscription renewals will show here when it does.
+            The Wallet billing-history route is not available yet, and Newsxis has no completed purchase to show. Nothing is invented. A receipt appears here after the Wallet accepts a charge.
           </div>
         )}
+      </section>
+      <section className="nx-card">
+        <h3>Sponsor a briefing · 5,000 Ixis ($50)</h3>
+        <p className="nx-muted">One time. Card opens the Wallet checkout. Ixis is a Wallet redeem. Newsxis never sees a card number.</p>
+        <label className="nx-label">Sponsor line<input className="nx-input" value={sponsorName} onChange={(e) => setSponsorName(e.target.value)} maxLength={80} placeholder="The name to read on air" /></label>
+        <div className="nx-actions">
+          <label className="nx-layer"><input type="radio" name="sponsor-pay" checked={sponsorMethod === "card"} onChange={() => setSponsorMethod("card")} /> Card</label>
+          <label className="nx-layer"><input type="radio" name="sponsor-pay" checked={sponsorMethod === "ixis"} onChange={() => setSponsorMethod("ixis")} /> Ixis</label>
+          <button className="nx-btn" type="button" disabled={busy} onClick={sponsor}>{busy ? "Contacting the Wallet…" : "Buy sponsor item"}</button>
+        </div>
       </section>
       <section className="nx-card">
         <h3>Ixis activity</h3>

@@ -1,5 +1,15 @@
 # Grok notes
 
+## 2026-10-14 — Receipts and the sponsor item
+
+Branch `cursor/billing-receipts-sponsor-2a3f`, stacked on `cursor/launch-legal-seo-2a3f`. Do not merge from this note. Do not apply `005_receipts.sql` to project `olwnstniusyyaswxboux` from here.
+
+Redeem used to reject `newsxis.sponsor.briefing` with `not_available_yet`. It now redeems that SKU through the Wallet like the other one-time Ixis products, and writes `revenue_events` with `Paid with Ixis.` Card sponsor calls `POST /api/v1/checkout` with lookup key `newsxis_sponsor_briefing_onetime`. A missing route stays a 501 and writes no receipt.
+
+`/billing` is readable signed out so the prices are public. History and the buy buttons still require Apixis ID. Local receipts use rows this site inserted after `redeem()` or checkout returned `receiptId`. They are not samples.
+
+Undo: revert this commit on `cursor/billing-receipts-sponsor-2a3f`.
+
 ## 2026-10-14 — Default Facebook Page URL
 
 Branch `cursor/launch-legal-seo-2a3f` (PR #2). Do not merge from this note.

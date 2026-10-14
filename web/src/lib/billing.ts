@@ -116,16 +116,15 @@ export type CheckoutSuccess = {
   periodEnd: string | null;
 };
 
-export async function startReporterCheckout(opts: {
+export async function startWalletCheckout(opts: {
   owner: Owner;
   method: PayMethod;
-  activated: boolean;
+  lookupKeys: readonly string[];
+  tier: string;
   successUrl: string;
   cancelUrl: string;
 }): Promise<BillingResult<CheckoutSuccess>> {
-  const lookupKeys = opts.activated
-    ? [NEWSXIS_PRODUCTS["newsxis.reporter.monthly"].lookupKey]
-    : [...REPORTER_CHECKOUT_KEYS];
+  const lookupKeys = [...opts.lookupKeys];
   const path = opts.method === "card" ? "/api/v1/checkout" : "/api/v1/subscribe";
   const result = await walletCall("POST", path, {
     lookup_key: lookupKeys[lookupKeys.length - 1],
@@ -133,7 +132,7 @@ export async function startReporterCheckout(opts: {
     method: opts.method,
     product: NEWSXIS_BILLING_PRODUCT,
     apixis_product: NEWSXIS_BILLING_PRODUCT,
-    apixis_tier: "reporter",
+    apixis_tier: opts.tier,
     success_url: opts.successUrl,
     cancel_url: opts.cancelUrl,
     ...ownerFields(opts.owner),
@@ -144,6 +143,35 @@ export async function startReporterCheckout(opts: {
     return gapFor(path, "unexpected_shape", "The Wallet answered in a shape Newsxis does not understand. You were not marked as paid. Check the Wallet before trying again.");
   }
   return { ok: true, data: parsed };
+}
+
+export async function startReporterCheckout(opts: {
+  owner: Owner;
+  method: PayMethod;
+  activated: boolean;
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<BillingResult<CheckoutSuccess>> {
+  const lookupKeys = opts.activated
+    ? [NEWSXIS_PRODUCTS["newsxis.reporter.monthly"].lookupKey]
+    : [...REPORTER_CHECKOUT_KEYS];
+  return startWalletCheckout({ ...opts, lookupKeys, tier: "reporter" });
+}
+
+/** Sponsor is one charge. Card opens Wallet Checkout. Ixis uses redeem(), not a subscription. */
+export async function startSponsorCheckout(opts: {
+  owner: Owner;
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<BillingResult<CheckoutSuccess>> {
+  return startWalletCheckout({
+    owner: opts.owner,
+    method: "card",
+    lookupKeys: [NEWSXIS_PRODUCTS["newsxis.sponsor.briefing"].lookupKey],
+    tier: "sponsor",
+    successUrl: opts.successUrl,
+    cancelUrl: opts.cancelUrl,
+  });
 }
 
 export function readCheckoutSuccess(data: unknown, method: PayMethod): CheckoutSuccess | null {

@@ -7,6 +7,7 @@ import { apixisOwner } from "@/lib/apixis-login";
 import { entitlements, walletBalance, WalletError } from "@/lib/apixis-wallet";
 import { billingPayments, billingSubscription, WALLET_BILLING_GAPS, type BillingGapCode } from "@/lib/billing";
 import { NEWSXIS_BILLING_PRODUCT } from "@/lib/products";
+import { localReceipts, mergeBillingHistory, type RevenueRow } from "@/lib/receipts";
 import { currentProfile, serviceConfigured, supabaseAdmin } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -47,10 +48,17 @@ export async function GET() {
     ixisError = error instanceof WalletError ? error.message : "balance_unavailable";
   }
 
+  let recorded: ReturnType<typeof localReceipts> = [];
+  if (serviceConfigured()) {
+    const { data } = await supabaseAdmin().from("revenue_events").select("id, ixis, usd, wallet_receipt_id, product_key, note, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50);
+    recorded = localReceipts((data ?? []) as RevenueRow[]);
+  }
+
   const gaps: { path: string; gap: BillingGapCode; todo: string; message: string }[] = [];
   if (!payments.ok) gaps.push({ path: "GET /api/v1/billing/payments", gap: payments.gap, todo: payments.todo, message: payments.message });
   if (!subscription.ok) gaps.push({ path: "GET /api/v1/billing/subscriptions", gap: subscription.gap, todo: subscription.todo, message: subscription.message });
 
+  const walletPayments = payments.ok ? payments.data : [];
   return json({
     ok: true,
     product: NEWSXIS_BILLING_PRODUCT,
@@ -59,8 +67,9 @@ export async function GET() {
     renewsAt: subscription.ok ? subscription.data?.renewsAt ?? renewsAt : renewsAt,
     cancelAtPeriodEnd: subscription.ok ? Boolean(subscription.data?.cancelAtPeriodEnd) : false,
     subscriptionKnown: subscription.ok,
-    payments: payments.ok ? payments.data : [],
-    paymentsKnown: payments.ok,
+    payments: mergeBillingHistory(walletPayments, recorded),
+    paymentsKnown: payments.ok || recorded.length > 0,
+    recordedCount: recorded.length,
     ixisActivity,
     ixisError,
     entitlementError,
