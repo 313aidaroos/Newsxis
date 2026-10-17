@@ -24,7 +24,7 @@ export function RadioPage({ stations, briefings }: { stations: Source[]; briefin
     <div className="nx-grid nx-grid-2">
       <section className="nx-card">
         <div className="nx-cixy" style={{ marginBottom: 12 }}>
-          <div className="nx-cixy-orb" />
+          <img className="nx-cixy-orb" src="/cixy/cixy-newsxis-avatar.webp" alt="Cixy" width={54} height={54} />
           <div><h2 style={{ textTransform: "none", letterSpacing: 0, fontSize: 18, color: "var(--nx-ink)" }}>Newsxis Radio · Cixy</h2><div className="nx-tiny">Hourly world briefings, regional briefings every 3 hours, breaking bulletins as they happen.</div></div>
         </div>
         {briefings.length === 0 ? (

@@ -132,7 +132,7 @@ export function Home({ initialStories, initialStations, showGraphic }: { initial
         {narration && (narration.text || narration.error) && (
           <div className="nx-globe-ui" style={{ bottom: 70, left: 12, right: 12 }}>
             <div className="nx-globe-panel" style={{ maxWidth: 640, alignItems: "flex-start" }}>
-              <div className="nx-cixy-orb" style={{ width: 30, height: 30 }} />
+              <img className="nx-cixy-orb" src="/cixy/cixy-newsxis-avatar.webp" alt="" width={30} height={30} style={{ width: 30, height: 30 }} />
               <div style={{ flex: 1 }}>
                 <div className="nx-tiny">CIXY · {sliderLabel}</div>
                 <div style={{ fontSize: 13.5, lineHeight: 1.5 }}>{narration.error ?? narration.text}</div>

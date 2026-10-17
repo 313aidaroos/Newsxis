@@ -170,7 +170,7 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .nx-station strong { display: block; font-size: 14px; }
 .nx-station small { color: var(--nx-ink3); }
 .nx-cixy { display: flex; gap: 14px; align-items: center; }
-.nx-cixy-orb { width: 54px; height: 54px; border-radius: 999px; background: radial-gradient(circle at 35% 35%, #bff6ff, var(--nx-accent) 40%, #0b4a66 75%, #05070f); box-shadow: var(--nx-glow), inset 0 0 18px rgba(255,255,255,.25); flex: none; animation: nx-breathe 4s ease-in-out infinite; }
+.nx-cixy-orb { object-fit: cover; flex: none; width: 54px; height: 54px; border-radius: 999px; background: radial-gradient(circle at 35% 35%, #bff6ff, var(--nx-accent) 40%, #0b4a66 75%, #05070f); box-shadow: var(--nx-glow), inset 0 0 18px rgba(255,255,255,.25); flex: none; animation: nx-breathe 4s ease-in-out infinite; }
 @keyframes nx-breathe { 0%, 100% { box-shadow: 0 0 18px rgba(56,232,255,.35); } 50% { box-shadow: 0 0 42px rgba(56,232,255,.7); } }
 
 /* ---------- admin ---------- */
