@@ -8,7 +8,7 @@ import { useRef, useState } from "react";
 import { ActivityIndicator, Linking, StyleSheet, View } from "react-native";
 import { WebView } from "react-native-webview";
 
-export const SITE = ((Constants.expoConfig?.extra as { siteUrl?: string } | undefined)?.siteUrl ?? "https://newsxis.vercel.app").replace(/\/$/, "");
+export const SITE = ((Constants.expoConfig?.extra as { siteUrl?: string } | undefined)?.siteUrl ?? "https://newsxis.apixis.dev").replace(/\/$/, "");
 
 export function Site({ path }: { path: string }) {
   const [loading, setLoading] = useState(true);

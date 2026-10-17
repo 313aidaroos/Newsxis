@@ -16,7 +16,7 @@ export type FeedItem = {
   raw?: Record<string, unknown>;
 };
 
-const UA = "Newsxis/0.1 (+https://newsxis.vercel.app; news aggregation; contact newsxis@apixis.dev)";
+const UA = "Newsxis/0.1 (+https://newsxis.apixis.dev; news aggregation; contact newsxis@apixis.dev)";
 
 async function get(url: string, accept = "*/*"): Promise<string> {
   const res = await fetch(url, { headers: { "user-agent": UA, accept }, cache: "no-store", signal: AbortSignal.timeout(20_000) });

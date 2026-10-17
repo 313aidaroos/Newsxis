@@ -61,7 +61,7 @@ test("x text stays inside 280 even when the source line is long", () => {
     place_name: "New York",
     country: "US",
   } as Story;
-  const text = socialText(s, "https://newsxis.vercel.app", "x");
+  const text = socialText(s, "https://newsxis.apixis.dev", "x");
   assert.ok(text.length <= 280);
   assert.match(text, /^BREAKING/);
   assert.match(text, /AI-written/);
