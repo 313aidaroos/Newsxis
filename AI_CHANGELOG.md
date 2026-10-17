@@ -2,6 +2,29 @@
 
 Every AI model, bot or agent that changes anything in this repo appends a dated entry here (what + why).
 
+## 2026-10-17 — Grok: paper newsroom redesign
+- The approved light newsroom is on the same branch as the logo kit. Header uses `/brand/mark.png` with the name under it. Palette is red `#F03050`, blue `#1E5BB8` / `#459BE2`, paper `#F4F7FB`, ink `#10182C`. The footer row is "Other Ixis companies" and names Ominixis. Recovra is omitted because it merged into Deduxis.
+- Sign-in stays Apixis-ID-only. An empty `APIXIS_CLIENT_ID` hides the button and the start route returns to `/login` instead of opening the Wallet with a blank client id. The header has one sign-in control. The Live badge appears only when a story was published in the last three hours. Hovering a story flies the globe to its coordinates. Ask Cixy falls back to headlines already on the map when the model is unavailable. Login copy no longer mentions chat. `/api/health` counts the default Facebook Page as linked. Story and social shares use `/brand/og-image.png`. `/api/card` returns that file if drawing the card throws.
+- Why: Awad approved the mockups, and the eight phase-2 fixes should fail closed when a key is missing. No env edits. No migrations. No Stripe changes.
+- Undo: revert commit `7a39c39` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
+## 2026-10-17 — Grok: official red/blue globe logo
+- Awad supplied the official lockup and mark (glossy red/blue globe, N, orbit rings). They replace the cyan raster in `web/public/brand/`. `logo-full.png` and `mark.png` are the supplied cutouts, unchanged. `banner.png`, `facebook-cover.png`, and `facebook-profile.png` are the supplied files.
+- `logo-full-white.png` and `mark-white.png` are white silhouettes derived from those cutouts. They keep the original alpha. Official white art was not supplied.
+- Square icons (`favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) pad `mark.png` on a transparent square. `og-image.png` places `logo-full.png` on a light ground washed with the sampled globe colors (`#0259d9` blue, `#eb0308` red). The header uses `/brand/mark.png` at the mark's 1224×881 ratio. Story cards embed `icon-192.png`.
+- Why: the official logo replaces the earlier raster of the SVG. No env vars. No migrations.
+- Undo: revert commit `d5c5c1a` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
+## 2026-10-17 — Grok: transparent PNG brand kit
+- The site icon was an SVG globe on a solid `#05070f` plate (`web/src/app/icon.svg`, `web/public/icon.svg`, `mobile/assets/icon.svg`), plus `web/public/favicon.ico` and `web/public/favicon.png`. No raster master exists, and `/workspace/brand-kits` has no Newsxis kit, so the mark was rasterized from that SVG with the plate removed.
+- One kit, `web/public/brand/`, served at `/brand/`. PNG and ICO only. Header, favicon, apple-touch icon, manifest, and Open Graph / Twitter use those files. Story cards embed `mark.png`. `banner.png`, `facebook-cover.png`, and `facebook-profile.png` are listed as pending and are not in the folder. No env vars. No migrations.
+- Why: Awad's rule. Every site embeds its logo as a transparent PNG, with no SVG and no plate behind the mark.
+- Undo: revert commit `dc09260` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
+## 2026-10-17 — Grok: story card text nodes
+- The story image route returned 500 once the mark was embedded. Satori rejects a div with more than one child unless that div is flex. The summary line and the Cixy line were two nodes. Each is now one string, so `/brand/mark.png` renders on the card.
+- Undo: revert commit `f2774dc` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
 ## 2026-10-14 — Grok: Socixis flag, daily report, social gate
 - Socixis Social stays a tab and renders the family feed client only when `APIXIS_WORLD_KEY` is set or `SOCIXIS_FEED=on`. Otherwise the tab says the feed is not connected. The feed-client copy is not edited.
 - Opt-in daily report at 8:00 PM America/Chicago. `supabase/migrations/006_daily_report.sql` adds `profiles.daily_report_opt_in` and `daily_reports`. The cron is hourly and writes only in that hour. A model script is labeled "Written by Cixy · AI-generated daily report". No stories means one true sentence that is not called model writing. Stories with no model return 503 and write nothing. Account has the checkbox. `/report` lists the person's rows. The migration is not applied to the live project.

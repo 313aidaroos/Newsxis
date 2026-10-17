@@ -49,3 +49,37 @@ export function apixisLoginHref(next = "/"): string {
   const safe = next.startsWith("/") && !next.startsWith("//") ? next : "/";
   return `/login?next=${encodeURIComponent(safe)}`;
 }
+
+/** True only when this site has an Apixis ID client name. The value itself is never returned. */
+export function apixisClientConfigured(raw: string | null | undefined = process.env.APIXIS_CLIENT_ID): boolean {
+  return Boolean(raw?.trim());
+}
+
+/** Health flag for the public Facebook Page, including the built-in address when the env slot is empty. */
+export function healthFacebookLinked(raw?: string | null): boolean {
+  return Boolean(facebookPageUrl(raw));
+}
+
+/** Link-preview image. The brand lockup, not a generated stand-in. */
+export const SHARE_IMAGE_PATH = "/brand/og-image.png";
+
+/**
+ * Other Ixis companies. Recovra is omitted: it merged into Deduxis.
+ * Names without a verified site link to the family directory.
+ */
+export const FAMILY_COMPANIES: Array<{ name: string; href: string }> = [
+  { name: "Apixis", href: "https://www.apixis.dev" },
+  { name: "Apixis Wallet", href: "https://apixis-wallet.vercel.app" },
+  { name: "Socixis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Lyrixis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Pinixis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Renoxis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Contraxis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Deduxis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Rawixis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Halaxis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Launchixis", href: "https://launchixis.vercel.app" },
+  { name: "Geoxis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Ominixis", href: "https://www.apixis.dev/companies.html" },
+  { name: "Wattixis", href: "https://wattixis.vercel.app" },
+];

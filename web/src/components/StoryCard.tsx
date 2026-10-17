@@ -21,8 +21,9 @@ export function StatusChip({ s }: { s: Pick<Story, "confirmed" | "disputed" | "c
 
 export function StoryCard({ s, compact, onFocus }: { s: Story; compact?: boolean; onFocus?: (s: Story) => void }) {
   const place = [s.place_name ?? s.city, s.region, s.country].filter(Boolean).join(", ");
+  const tone = s.disputed ? "disputed" : s.confirmed ? "confirmed" : "open";
   return (
-    <article className={`nx-story nx-story-sev${s.severity}`} onMouseEnter={onFocus ? () => onFocus(s) : undefined}>
+    <article className={`nx-story nx-story-${tone} nx-story-sev${s.severity}`} onMouseEnter={onFocus ? () => onFocus(s) : undefined}>
       <div className="nx-story-meta">
         <SeverityChip s={s} />
         {s.severity < 3 && <span className="nx-chip">{CATEGORY_LABEL[s.category]}</span>}
