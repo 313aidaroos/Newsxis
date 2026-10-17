@@ -19,11 +19,12 @@ const PRESENT = [
   "icon-192.png",
   "icon-512.png",
   "og-image.png",
+  "banner.png",
+  "facebook-cover.png",
+  "facebook-profile.png",
   "brand.json",
   "README.md",
 ] as const;
-
-const PENDING = ["banner.png", "facebook-cover.png", "facebook-profile.png"] as const;
 
 type Rgba = { width: number; height: number; rows: Buffer; stride: number };
 
@@ -103,21 +104,35 @@ function walk(dir: string, acc: string[] = []): string[] {
 
 test("brand kit matches the family file list", () => {
   const onDisk: string[] = readdirSync(brandDir).sort();
-  for (const name of PENDING) assert.equal(onDisk.includes(name), false, `${name} is pending and must not be shipped`);
   assert.deepEqual(onDisk, [...PRESENT].sort());
   const meta = JSON.parse(readFileSync(path.join(brandDir, "brand.json"), "utf8"));
   assert.equal(meta.name, "Newsxis");
   assert.equal(meta.domain, "newsxis.vercel.app");
   assert.equal(typeof meta.tagline, "string");
   for (const key of ["primary", "accent", "background", "text"]) assert.match(meta.colors[key], /^#[0-9a-f]{6}$/);
+  assert.equal(meta.colors.primary, "#0259d9");
+  assert.equal(meta.colors.accent, "#eb0308");
   assert.ok(Array.isArray(meta.fonts));
   for (const name of PRESENT) {
     if (name === "brand.json" || name === "README.md") continue;
     assert.ok(meta.files[name], `brand.json files.${name}`);
   }
-  for (const name of PENDING) assert.equal(meta.files[name].status, "pending");
-  assert.match(readFileSync(path.join(brandDir, "README.md"), "utf8"), /pending/i);
+  assert.equal(meta.files["logo-full-white.png"].derived, true);
+  assert.equal(meta.files["mark-white.png"].derived, true);
+  const readme = readFileSync(path.join(brandDir, "README.md"), "utf8");
+  assert.match(readme, /derived/i);
+  assert.match(readme, /official white/i);
+  assert.deepEqual(pngSize(readFileSync(path.join(brandDir, "banner.png"))), [3072, 1170, 2]);
+  assert.deepEqual(pngSize(readFileSync(path.join(brandDir, "facebook-cover.png"))), [1640, 624, 2]);
+  assert.deepEqual(pngSize(readFileSync(path.join(brandDir, "facebook-profile.png"))), [720, 720, 2]);
+  assert.deepEqual(pngSize(readFileSync(path.join(brandDir, "logo-full.png"))).slice(0, 2), [1224, 1157]);
+  assert.deepEqual(pngSize(readFileSync(path.join(brandDir, "mark.png"))).slice(0, 2), [1224, 881]);
 });
+
+function pngSize(buf: Buffer): [number, number, number] {
+  assert.equal(buf.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
+  return [buf.readUInt32BE(16), buf.readUInt32BE(20), buf[25]];
+}
 
 test("logo and icon PNGs have an alpha channel and transparent corners", () => {
   const expect: Record<string, [number, number] | "min"> = {

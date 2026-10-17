@@ -2,16 +2,18 @@
 
 One folder. Served at `/brand/`. PNG and ICO only. No SVG. No second copy anywhere else in the repo.
 
-The mark is the Newsxis globe: cyan highlight, pale meridian and equator, breaking-red pip. Corners are transparent. There is no plate behind the mark.
+`logo-full.png` and `mark.png` are the official transparent cutouts. Do not redraw or recolor them.
 
 ## Colors
 
+Sampled from the globe.
+
 | Token | Hex | Use |
 | --- | --- | --- |
-| primary | `#38e8ff` | Globe rim and the site accent |
-| accent | `#ff3b5c` | The pip on the mark, and breaking news |
+| primary | `#0259d9` | Globe blue |
+| accent | `#eb0308` | Globe red |
 | background | `#05070f` | Newsroom background |
-| text | `#e8f0ff` | Wordmark and body ink on that background |
+| text | `#e8f0ff` | Ink on that background |
 
 Font: Inter.
 
@@ -19,25 +21,25 @@ Font: Inter.
 
 | File | Use |
 | --- | --- |
-| `logo-full.png` | Horizontal lockup (mark left, name right) on a light background. Width is at least 1024. |
-| `logo-full-white.png` | The same lockup in white, on a dark background. |
-| `mark.png` | The icon alone. Header, app icon, and anywhere the name is already set in type. At least 512, this one is 1024. |
-| `mark-white.png` | White icon, for a dark or photographic background. |
-| `favicon.ico` | Browser tab. Holds the 16×16 and 32×32 icons. |
+| `logo-full.png` | Official lockup, globe above the name, transparent. 1224×1157. |
+| `logo-full-white.png` | White silhouette of that lockup, for a dark background. Derived. An official white file was not supplied. |
+| `mark.png` | Official icon, transparent. 1224×881. This is the header mark. |
+| `mark-white.png` | White silhouette of the icon. Derived, pending an official white mark. |
+| `favicon.ico` | Browser tab. 16×16 and 32×32, the mark padded to a square. |
 | `favicon-32.png` | 32×32 PNG favicon. |
-| `apple-touch-icon.png` | 180×180 home-screen icon. |
+| `apple-touch-icon.png` | 180×180, the mark padded to a square. |
 | `icon-192.png` | Installed app icon, 192. |
 | `icon-512.png` | Installed app icon, 512. |
-| `og-image.png` | Link preview, 1200×630. The logo sits on the Newsxis background. This card is filled; the logo files above are not. |
-
-## Not in the folder yet
-
-`banner.png`, `facebook-cover.png` (1640×624), and `facebook-profile.png` (720×720) are pending. They are listed in `brand.json` and are not shipped.
+| `og-image.png` | Link preview, 1200×630. The official lockup on a light ground washed with the globe's red and blue. |
+| `banner.png` | Wide feature banner, 3072×1170. Logo and name on the left, features on the right. |
+| `facebook-cover.png` | Facebook cover, 1640×624. |
+| `facebook-profile.png` | Facebook profile, 720×720. |
 
 ## Rules
 
 - Load these files from `/brand/` by these names.
 - Do not add another logo, favicon, or icon file elsewhere.
-- Do not redraw, recolor, or trace the mark.
-- Do not put a box, plate, or solid backdrop behind the mark. The theme background is enough.
+- Do not redraw, recolor, or trace `logo-full.png` or `mark.png`.
+- `logo-full-white.png` and `mark-white.png` are white silhouettes made from those files. They keep the original alpha. Replace them when official white art arrives.
+- The square icons pad `mark.png` on a transparent background. They do not squash it.
 - Do not ship an SVG of this mark.

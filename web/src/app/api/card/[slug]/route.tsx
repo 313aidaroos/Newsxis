@@ -12,7 +12,7 @@ const brandDir = path.join(process.cwd(), "public/brand");
 const brand = JSON.parse(readFileSync(path.join(brandDir, "brand.json"), "utf8")) as {
   colors: { primary: string; accent: string; background: string; text: string };
 };
-const markSrc = `data:image/png;base64,${readFileSync(path.join(brandDir, "mark.png")).toString("base64")}`;
+const markSrc = `data:image/png;base64,${readFileSync(path.join(brandDir, "icon-192.png")).toString("base64")}`;
 
 export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
   const { slug } = await ctx.params;

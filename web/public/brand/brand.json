@@ -3,75 +3,76 @@
   "domain": "newsxis.vercel.app",
   "tagline": "Real-time news for every place on Earth",
   "colors": {
-    "primary": "#38e8ff",
-    "accent": "#ff3b5c",
+    "primary": "#0259d9",
+    "accent": "#eb0308",
     "background": "#05070f",
     "text": "#e8f0ff"
   },
   "fonts": ["Inter"],
   "files": {
     "logo-full.png": {
-      "role": "Horizontal lockup. Mark on the left, name on the right. Transparent. For light backgrounds.",
-      "width": 2097,
-      "height": 1024
+      "role": "Official lockup. Globe above the name. Transparent. Supplied by Awad.",
+      "width": 1224,
+      "height": 1157
     },
     "logo-full-white.png": {
-      "role": "Same lockup in white, for dark backgrounds.",
-      "width": 2097,
-      "height": 1024
+      "role": "White silhouette of logo-full.png. Derived until an official white lockup is supplied.",
+      "width": 1224,
+      "height": 1157,
+      "derived": true
     },
     "mark.png": {
-      "role": "Icon only. Transparent.",
-      "width": 1024,
-      "height": 1024
+      "role": "Official icon. Transparent. Supplied by Awad.",
+      "width": 1224,
+      "height": 881
     },
     "mark-white.png": {
-      "role": "Icon only, white.",
-      "width": 1024,
-      "height": 1024
+      "role": "White silhouette of mark.png. Derived until an official white mark is supplied.",
+      "width": 1224,
+      "height": 881,
+      "derived": true
     },
     "favicon.ico": {
-      "role": "Browser favicon built from the 16×16 and 32×32 PNGs.",
+      "role": "Browser favicon. 16 and 32, padded square, from mark.png.",
       "sizes": [16, 32]
     },
     "favicon-32.png": {
-      "role": "32×32 favicon.",
+      "role": "32×32 favicon. mark.png padded to a square.",
       "width": 32,
       "height": 32
     },
     "apple-touch-icon.png": {
-      "role": "Apple touch icon.",
+      "role": "Apple touch icon. mark.png padded to a square.",
       "width": 180,
       "height": 180
     },
     "icon-192.png": {
-      "role": "PWA icon.",
+      "role": "PWA icon. mark.png padded to a square.",
       "width": 192,
       "height": 192
     },
     "icon-512.png": {
-      "role": "PWA icon.",
+      "role": "PWA icon. mark.png padded to a square.",
       "width": 512,
       "height": 512
     },
     "og-image.png": {
-      "role": "Open Graph and Twitter card. The logo on the Newsxis theme.",
+      "role": "Open Graph and Twitter card. logo-full.png on a light red and blue ground.",
       "width": 1200,
       "height": 630
     },
     "banner.png": {
-      "status": "pending",
-      "role": "Wide feature banner. Logo and name on the left, features on the right."
+      "role": "Wide feature banner. Logo and name on the left, features on the right. Supplied by Awad.",
+      "width": 3072,
+      "height": 1170
     },
     "facebook-cover.png": {
-      "status": "pending",
-      "role": "Facebook cover.",
+      "role": "Facebook cover. Supplied by Awad.",
       "width": 1640,
       "height": 624
     },
     "facebook-profile.png": {
-      "status": "pending",
-      "role": "Facebook profile.",
+      "role": "Facebook profile image. Supplied by Awad.",
       "width": 720,
       "height": 720
     }

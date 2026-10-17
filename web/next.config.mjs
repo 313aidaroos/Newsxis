@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   outputFileTracingIncludes: {
-    "/api/card/[slug]": ["./public/brand/mark.png", "./public/brand/brand.json"],
+    "/api/card/[slug]": ["./public/brand/icon-192.png", "./public/brand/brand.json"],
   },
   images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
   experimental: { serverActions: { bodySizeLimit: "25mb" } },
