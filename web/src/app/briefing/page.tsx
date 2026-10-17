@@ -21,7 +21,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   return (
     <div className="nx-page nx-page-narrow">
       <div className="nx-cixy" style={{ marginBottom: 16 }}>
-        <div className="nx-cixy-orb" />
+        <img className="nx-cixy-orb" src="/cixy/cixy-newsxis-avatar.webp" alt="Cixy" width={54} height={54} />
         <div><h1 className="nx-h1" style={{ margin: 0 }}>Cixy</h1><p className="nx-sub" style={{ margin: 0 }}>The Newsxis anchor. One voice, every language, no leaning. Every word is attributed.</p></div>
       </div>
       <div className="nx-tabs">
