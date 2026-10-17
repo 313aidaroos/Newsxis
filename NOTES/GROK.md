@@ -6,7 +6,7 @@ Branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
 
 Awad's official `logo-full.png` (1224×1157) and `mark.png` (1224×881) replace the cyan raster. Both files are byte copies of the supplied cutouts. `banner.png` (3072×1170), `facebook-cover.png` (1640×624), and `facebook-profile.png` (720×720) are the supplied files and have no alpha channel. `logo-full-white.png` and `mark-white.png` are derived white silhouettes that keep the original alpha, pending official white art. Square icons pad the mark. `og-image.png` is the lockup on a light red/blue ground. `brand.json` primary is `#0259d9` and accent is `#eb0308`. The newsroom background stays `#05070f`.
 
-Undo: revert commit `PENDING` on branch `cursor/transparent-png-logo-2ef4`.
+Undo: revert commit `d5c5c1a` on branch `cursor/transparent-png-logo-2ef4`.
 
 ## 2026-10-17 — Transparent PNG brand kit
 

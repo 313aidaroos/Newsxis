@@ -7,7 +7,7 @@ Every AI model, bot or agent that changes anything in this repo appends a dated 
 - `logo-full-white.png` and `mark-white.png` are white silhouettes derived from those cutouts. They keep the original alpha. Official white art was not supplied.
 - Square icons (`favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) pad `mark.png` on a transparent square. `og-image.png` places `logo-full.png` on a light ground washed with the sampled globe colors (`#0259d9` blue, `#eb0308` red). The header uses `/brand/mark.png` at the mark's 1224×881 ratio. Story cards embed `icon-192.png`.
 - Why: the official logo replaces the earlier raster of the SVG. No env vars. No migrations.
-- Undo: revert commit `PENDING` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+- Undo: revert commit `d5c5c1a` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
 
 ## 2026-10-17 — Grok: transparent PNG brand kit
 - The site icon was an SVG globe on a solid `#05070f` plate (`web/src/app/icon.svg`, `web/public/icon.svg`, `mobile/assets/icon.svg`), plus `web/public/favicon.ico` and `web/public/favicon.png`. No raster master exists, and `/workspace/brand-kits` has no Newsxis kit, so the mark was rasterized from that SVG with the plate removed.
