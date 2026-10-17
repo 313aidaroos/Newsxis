@@ -36,13 +36,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: (story.headline ?? "").length > 90 ? 44 : 56, fontWeight: 800, lineHeight: 1.1 }}>{story.headline}</div>
-          <div style={{ fontSize: 26, color: "#b8c6e6", lineHeight: 1.35 }}>{(story.summary ?? "").slice(0, 190)}{(story.summary ?? "").length > 190 ? "…" : ""}</div>
+          <div style={{ fontSize: 26, color: "#b8c6e6", lineHeight: 1.35 }}>{`${(story.summary ?? "").slice(0, 190)}${(story.summary ?? "").length > 190 ? "…" : ""}`}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 22, color: "#8ea2c8" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <img src={markSrc} width={56} height={56} alt="" />
             <div style={{ fontSize: 34, fontWeight: 900, color: brand.colors.text, letterSpacing: 2 }}>NEWSXIS</div>
-            <div>· read by Cixy · {story.ai_label?.replace("Written by Cixy from ", "source: ") ?? "AI-written"}</div>
+            <div>{`· read by Cixy · ${story.ai_label?.replace("Written by Cixy from ", "source: ") ?? "AI-written"}`}</div>
           </div>
           <div>{story.disputed ? "Disputed" : story.confirmed ? "Confirmed" : "Unconfirmed"}</div>
         </div>
