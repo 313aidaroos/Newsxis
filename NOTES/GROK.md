@@ -10,6 +10,8 @@ The header and the sign-in card use `/brand/mark.png`. Root metadata, the manife
 
 Undo: revert commit `dc09260` on branch `cursor/transparent-png-logo-2ef4`.
 
+The story card route also needed one string per line. Satori 500'd on the summary and the Cixy line because each was two child nodes. That fix is commit `f2774dc`.
+
 ## 2026-10-14 — Socixis flag, daily report, social gate
 
 Branch `cursor/feed-report-social-2a3f`, stacked on `cursor/billing-receipts-sponsor-2a3f`. Do not merge from this note. Do not apply `006_daily_report.sql` to project `olwnstniusyyaswxboux` from here.
