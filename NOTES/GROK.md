@@ -1,5 +1,15 @@
 # Grok notes
 
+## 2026-10-17 — Transparent PNG brand kit
+
+Branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
+There was no raster logo and no central kit under `/workspace/brand-kits`. The SVG globe was the only source. `web/public/brand/` is the raster of that drawing without the rounded `#05070f` plate. Corners of every logo and icon PNG are transparent. `og-image.png` is 1200×630 with the same mark on the Newsxis background, so that card is filled on purpose.
+
+The header and the sign-in card use `/brand/mark.png`. Root metadata, the manifest, and `/favicon.ico` (a rewrite) use the kit. The story image route reads `public/brand/mark.png` and the colors in `brand.json`. The mobile app points at `web/public/brand/mark.png` instead of keeping a second file. `banner.png`, `facebook-cover.png`, and `facebook-profile.png` are pending in `brand.json` and the kit README.
+
+Undo: revert the commit on branch `cursor/transparent-png-logo-2ef4`.
+
 ## 2026-10-14 — Socixis flag, daily report, social gate
 
 Branch `cursor/feed-report-social-2a3f`, stacked on `cursor/billing-receipts-sponsor-2a3f`. Do not merge from this note. Do not apply `006_daily_report.sql` to project `olwnstniusyyaswxboux` from here.

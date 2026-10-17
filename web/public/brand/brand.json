@@ -1,0 +1,79 @@
+{
+  "name": "Newsxis",
+  "domain": "newsxis.vercel.app",
+  "tagline": "Real-time news for every place on Earth",
+  "colors": {
+    "primary": "#38e8ff",
+    "accent": "#ff3b5c",
+    "background": "#05070f",
+    "text": "#e8f0ff"
+  },
+  "fonts": ["Inter"],
+  "files": {
+    "logo-full.png": {
+      "role": "Horizontal lockup. Mark on the left, name on the right. Transparent. For light backgrounds.",
+      "width": 2097,
+      "height": 1024
+    },
+    "logo-full-white.png": {
+      "role": "Same lockup in white, for dark backgrounds.",
+      "width": 2097,
+      "height": 1024
+    },
+    "mark.png": {
+      "role": "Icon only. Transparent.",
+      "width": 1024,
+      "height": 1024
+    },
+    "mark-white.png": {
+      "role": "Icon only, white.",
+      "width": 1024,
+      "height": 1024
+    },
+    "favicon.ico": {
+      "role": "Browser favicon built from the 16×16 and 32×32 PNGs.",
+      "sizes": [16, 32]
+    },
+    "favicon-32.png": {
+      "role": "32×32 favicon.",
+      "width": 32,
+      "height": 32
+    },
+    "apple-touch-icon.png": {
+      "role": "Apple touch icon.",
+      "width": 180,
+      "height": 180
+    },
+    "icon-192.png": {
+      "role": "PWA icon.",
+      "width": 192,
+      "height": 192
+    },
+    "icon-512.png": {
+      "role": "PWA icon.",
+      "width": 512,
+      "height": 512
+    },
+    "og-image.png": {
+      "role": "Open Graph and Twitter card. The logo on the Newsxis theme.",
+      "width": 1200,
+      "height": 630
+    },
+    "banner.png": {
+      "status": "pending",
+      "role": "Wide feature banner. Logo and name on the left, features on the right."
+    },
+    "facebook-cover.png": {
+      "status": "pending",
+      "role": "Facebook cover.",
+      "width": 1640,
+      "height": 624
+    },
+    "facebook-profile.png": {
+      "status": "pending",
+      "role": "Facebook profile.",
+      "width": 720,
+      "height": 720
+    }
+  }
+}

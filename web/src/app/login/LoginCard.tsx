@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { BrandMark } from "@/components/BrandMark";
 
 export function LoginCard({ next, error }: { next: string; error?: string }) {
   const [ofAge, setOfAge] = useState(false);
@@ -25,7 +26,7 @@ export function LoginCard({ next, error }: { next: string; error?: string }) {
 
   return (
     <div className="nx-card" style={{ textAlign: "center", padding: 28 }}>
-      <div className="nx-brand" style={{ justifyContent: "center", marginBottom: 10 }}><span className="nx-brand-dot" />NEWSXIS</div>
+      <div className="nx-brand" style={{ justifyContent: "center", marginBottom: 10 }}><BrandMark />NEWSXIS</div>
       <h1 className="nx-h1" style={{ fontSize: 24 }}>One Apixis account for every family site</h1>
       <p className="nx-muted">Watching Newsxis is free, no account needed. Sign in to post from the ground, chat, pick your home area and get breaking alerts. Every new account gets its own agent in the Apixis world with the shared Wallet.</p>
       {(error || localError) && <div className="nx-alert" style={{ margin: "12px 0" }}>{localError ?? errors[error ?? ""] ?? "Sign-in failed. Try again."}</div>}

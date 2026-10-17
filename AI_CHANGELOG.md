@@ -2,6 +2,12 @@
 
 Every AI model, bot or agent that changes anything in this repo appends a dated entry here (what + why).
 
+## 2026-10-17 — Grok: transparent PNG brand kit
+- The site icon was an SVG globe on a solid `#05070f` plate (`web/src/app/icon.svg`, `web/public/icon.svg`, `mobile/assets/icon.svg`), plus `web/public/favicon.ico` and `web/public/favicon.png`. No raster master exists, and `/workspace/brand-kits` has no Newsxis kit, so the mark was rasterized from that SVG with the plate removed.
+- One kit, `web/public/brand/`, served at `/brand/`. PNG and ICO only. Header, favicon, apple-touch icon, manifest, and Open Graph / Twitter use those files. Story cards embed `mark.png`. `banner.png`, `facebook-cover.png`, and `facebook-profile.png` are listed as pending and are not in the folder. No env vars. No migrations.
+- Why: Awad's rule. Every site embeds its logo as a transparent PNG, with no SVG and no plate behind the mark.
+- Undo: revert the commit on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
 ## 2026-10-14 — Grok: Socixis flag, daily report, social gate
 - Socixis Social stays a tab and renders the family feed client only when `APIXIS_WORLD_KEY` is set or `SOCIXIS_FEED=on`. Otherwise the tab says the feed is not connected. The feed-client copy is not edited.
 - Opt-in daily report at 8:00 PM America/Chicago. `supabase/migrations/006_daily_report.sql` adds `profiles.daily_report_opt_in` and `daily_reports`. The cron is hourly and writes only in that hour. A model script is labeled "Written by Cixy · AI-generated daily report". No stories means one true sentence that is not called model writing. Stories with no model return 503 and write nothing. Account has the checkbox. `/report` lists the person's rows. The migration is not applied to the live project.

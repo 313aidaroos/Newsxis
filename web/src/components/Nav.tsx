@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApixisWalletChip } from "./ApixisWalletChip";
+import { BrandMark } from "./BrandMark";
 
 const LINKS: Array<[string, string]> = [["/", "Globe"], ["/feed", "Feed"], ["/radio", "Radio"], ["/briefing", "Cixy"], ["/report", "Report"], ["/post", "Post"]];
 
@@ -14,7 +15,7 @@ export function Nav() {
   }, [path]);
   return (
     <header className="nx-nav">
-      <Link href="/" className="nx-brand" aria-label="Newsxis home"><span className="nx-brand-dot" />NEWSXIS<small>by Apixis</small></Link>
+      <Link href="/" className="nx-brand" aria-label="Newsxis home"><BrandMark />NEWSXIS<small>by Apixis</small></Link>
       <nav className="nx-nav-links" aria-label="Main">
         {LINKS.map(([href, label]) => <Link key={href} href={href} aria-current={path === href ? "page" : undefined}>{label}</Link>)}
         {me?.isOwner && <Link href="/admin" aria-current={path?.startsWith("/admin") ? "page" : undefined}>Admin</Link>}
