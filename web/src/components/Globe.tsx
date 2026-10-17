@@ -28,7 +28,7 @@ function style(): StyleSpecification | string {
   return {
     version: 8,
     sources: { osm: { type: "raster", tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256, attribution: "© OpenStreetMap contributors", maxzoom: 19 } },
-    layers: [{ id: "bg", type: "background", paint: { "background-color": "#020308" } }, { id: "osm", type: "raster", source: "osm", paint: { "raster-saturation": -0.6, "raster-brightness-max": 0.75, "raster-contrast": 0.2 } }],
+    layers: [{ id: "bg", type: "background", paint: { "background-color": "#dbe7f5" } }, { id: "osm", type: "raster", source: "osm", paint: { "raster-saturation": -0.2, "raster-brightness-min": 0.85, "raster-brightness-max": 1, "raster-contrast": -0.05 } }],
   };
 }
 
@@ -50,7 +50,7 @@ export function Globe({ stories, stations, posts, focus, onViewChange, onStory, 
     };
     m.on("style.load", () => {
       try { m.setProjection({ type: "globe" }); } catch { /* older maplibre */ }
-      try { m.setSky({ "sky-color": "#06102a", "horizon-color": "#0b1a40", "fog-color": "#05070f", "sky-horizon-blend": 0.6, "horizon-fog-blend": 0.9, "fog-ground-blend": 0.8 }); } catch { /* optional */ }
+      try { m.setSky({ "sky-color": "#d7e8f8", "horizon-color": "#f4f7fb", "fog-color": "#e7eef6", "sky-horizon-blend": 0.55, "horizon-fog-blend": 0.8, "fog-ground-blend": 0.7 }); } catch { /* optional */ }
       setReady(true);
       emit();
     });
@@ -72,9 +72,9 @@ export function Globe({ stories, stations, posts, focus, onViewChange, onStory, 
   }, [ready]);
 
   useEffect(() => {
-    const m = map.current; if (!m || !focus) return;
+    const m = map.current; if (!m || !ready || !focus) return;
     m.flyTo({ center: [focus.lng, focus.lat], zoom: focus.zoom ?? 9, duration: 1800, essential: true });
-  }, [focus]);
+  }, [focus, ready]);
 
   const popupHtml = useCallback((s: Story) => {
     const place = [s.place_name ?? s.city, s.country].filter(Boolean).join(", ");

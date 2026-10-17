@@ -3,12 +3,14 @@ import { profilePatch } from "@/lib/profile-patch";
 import { ageAllowsUse, reporterSeatActive, showGraphicMedia } from "@/lib/safety";
 import { currentProfile, supabaseUser } from "@/lib/supabase/server";
 import { apixisSubOf } from "@/lib/apixis-login";
+import { apixisClientConfigured } from "@/lib/public-site";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const { user, profile } = await currentProfile();
-  if (!user) return json({ ok: true, signedIn: false, profile: null });
+  const signInReady = apixisClientConfigured();
+  if (!user) return json({ ok: true, signedIn: false, profile: null, signInReady });
   const seat = reporterSeatActive(profile);
   return json({
     ok: true,
@@ -19,6 +21,7 @@ export async function GET() {
     canPost: seat,
     ageOk: ageAllowsUse(profile),
     showGraphic: showGraphicMedia(profile?.show_graphic_media),
+    signInReady,
   });
 }
 

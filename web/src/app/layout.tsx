@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Nav } from "@/components/Nav";
-import { SITE_DESCRIPTION, SITE_NAME, publicSiteUrl } from "@/lib/public-site";
+import { FAMILY_COMPANIES, SITE_DESCRIPTION, SITE_NAME, publicSiteUrl } from "@/lib/public-site";
 
 const siteUrl = publicSiteUrl();
 const title = "Newsxis — real-time news for every place on Earth";
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   manifest: "/manifest.json",
 };
-export const viewport: Viewport = { themeColor: "#05070f", width: "device-width", initialScale: 1, viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#f4f7fb", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -43,15 +43,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Nav />
         <main className="nx-main">{children}</main>
         <footer className="nx-footer">
-          <span>© {new Date().getFullYear()} Newsxis · Apixis Dev LLC</span>
-          <a href="/about">About</a>
-          <a href="/terms">Terms</a>
-          <a href="/privacy">Privacy</a>
-          <a href="/about#ai">AI-generated label</a>
-          <a href="/about#corrections">Corrections</a>
-          <a href="/support">Support · Complaints · Takedowns</a>
-          <a href="/support?kind=ads">Advertise</a>
-          <a href="https://www.apixis.dev" target="_blank" rel="noreferrer">Apixis world</a>
+          <div className="nx-footer-top">
+            <div>
+              <p className="nx-footer-brand">Newsxis</p>
+              <p className="nx-tiny" style={{ margin: 0 }}>Real-time news for every place on Earth. Apixis Dev LLC.</p>
+            </div>
+            <nav className="nx-footer-links" aria-label="Footer">
+              <a href="/about">About</a>
+              <a href="/terms">Terms</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/support">Support</a>
+              <a href="/report">Daily report</a>
+            </nav>
+          </div>
+          <div className="nx-family">
+            <h2>Other Ixis companies</h2>
+            <div className="nx-family-row">
+              {FAMILY_COMPANIES.map((company) => <a key={company.name} href={company.href} target="_blank" rel="noreferrer">{company.name}</a>)}
+            </div>
+          </div>
         </footer>
       </body>
     </html>

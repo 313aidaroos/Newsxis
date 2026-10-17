@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { BrandMark } from "@/components/BrandMark";
 
-export function LoginCard({ next, error }: { next: string; error?: string }) {
+export function LoginCard({ next, error, signInReady = true }: { next: string; error?: string; signInReady?: boolean }) {
   const [ofAge, setOfAge] = useState(false);
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -13,6 +13,7 @@ export function LoginCard({ next, error }: { next: string; error?: string }) {
     session_error: "Sign-in did not complete. Try again.",
     age_required: "Confirm that you are 13 or older before signing in.",
     under_13: "Newsxis is for people 13 and older. This account cannot continue.",
+    signin_not_connected: "Sign-in with Apixis is not connected on this site yet.",
   };
 
   const go = async () => {
@@ -28,13 +29,18 @@ export function LoginCard({ next, error }: { next: string; error?: string }) {
     <div className="nx-card" style={{ textAlign: "center", padding: 28 }}>
       <div className="nx-brand" style={{ justifyContent: "center", marginBottom: 10 }}><BrandMark />NEWSXIS</div>
       <h1 className="nx-h1" style={{ fontSize: 24 }}>One Apixis account for every family site</h1>
-      <p className="nx-muted">Watching Newsxis is free, no account needed. Sign in to post from the ground, chat, pick your home area and get breaking alerts. Every new account gets its own agent in the Apixis world with the shared Wallet.</p>
+      <p className="nx-muted">Watching Newsxis is free, no account needed. Sign in with your Apixis ID to post, comment, set a home area, and turn on breaking alerts. There is no chat on this site, and there is no separate Newsxis signup.</p>
+      {!signInReady && <div className="nx-notice" style={{ margin: "12px 0" }}>Sign-in with Apixis is not connected on this site yet. Watching stays open. There is no other way to sign in.</div>}
       {(error || localError) && <div className="nx-alert" style={{ margin: "12px 0" }}>{localError ?? errors[error ?? ""] ?? "Sign-in failed. Try again."}</div>}
-      <label className="nx-layer" style={{ margin: "14px 0", justifyContent: "center" }}>
-        <input type="checkbox" checked={ofAge} onChange={(e) => setOfAge(e.target.checked)} />
-        I am 13 or older
-      </label>
-      <button className="nx-btn" type="button" disabled={!ofAge || busy} onClick={go} style={{ width: "100%" }}>{busy ? "Continuing…" : "Sign in with Apixis"}</button>
+      {signInReady && (
+        <>
+          <label className="nx-layer" style={{ margin: "14px 0", justifyContent: "center" }}>
+            <input type="checkbox" checked={ofAge} onChange={(e) => setOfAge(e.target.checked)} />
+            I am 13 or older
+          </label>
+          <button className="nx-btn" type="button" disabled={!ofAge || busy} onClick={go} style={{ width: "100%" }}>{busy ? "Continuing…" : "Sign in with Apixis"}</button>
+        </>
+      )}
       <p className="nx-tiny">By signing in you accept the <a href="/terms">Newsxis terms</a> and <a href="/privacy">privacy policy</a>. AI-written news is labeled. A reporter seat is $10 to activate plus $10 a month, by card or Ixis, through the Apixis Wallet. There is no other signup.</p>
     </div>
   );
