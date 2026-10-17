@@ -11,7 +11,7 @@
  *   whisper    WHISPER_URL → an OpenAI-compatible /v1/audio/transcriptions server you run yourself
  *              (faster-whisper-server / whisper.cpp server). Open source, ~$10–30/station/month in CPU.
  *
- * Env: SITE_URL (https://newsxis.vercel.app), WORKER_KEY, STT_PROVIDER, DEEPGRAM_API_KEY | WHISPER_URL,
+ * Env: SITE_URL (https://newsxis.apixis.dev), WORKER_KEY, STT_PROVIDER, DEEPGRAM_API_KEY | WHISPER_URL,
  *      SEGMENT_SECONDS (default 45), MAX_STREAMS (default 6), ONLY (comma list of source slugs, optional).
  */
 import { spawn } from "node:child_process";
@@ -67,7 +67,7 @@ async function listen(source, signal) {
     const startedAt = new Date();
     const out = join(dir, `${Date.now()}.wav`);
     // 16 kHz mono PCM, exactly SEGMENT seconds, reconnect-friendly flags.
-    const ff = spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "10", "-user_agent", "Newsxis/0.1 (+https://newsxis.vercel.app)", "-i", source.stream_url, "-t", String(SEGMENT), "-ac", "1", "-ar", "16000", "-f", "wav", "-y", out], { stdio: ["ignore", "ignore", "pipe"] });
+    const ff = spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "10", "-user_agent", "Newsxis/0.1 (+https://newsxis.apixis.dev)", "-i", source.stream_url, "-t", String(SEGMENT), "-ac", "1", "-ar", "16000", "-f", "wav", "-y", out], { stdio: ["ignore", "ignore", "pipe"] });
     let err = "";
     ff.stderr.on("data", (d) => { err += d.toString(); });
     const code = await new Promise((res) => { ff.on("close", res); signal.addEventListener("abort", () => ff.kill("SIGTERM"), { once: true }); });

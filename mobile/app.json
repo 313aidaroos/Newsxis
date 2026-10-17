@@ -12,6 +12,6 @@
     "ios": { "bundleIdentifier": "dev.apixis.newsxis", "supportsTablet": true, "infoPlist": { "UIBackgroundModes": ["audio"] } },
     "android": { "package": "dev.apixis.newsxis", "adaptiveIcon": { "foregroundImage": "./assets/icon.png", "backgroundColor": "#05070f" }, "permissions": ["POST_NOTIFICATIONS"] },
     "plugins": ["expo-router", ["expo-notifications", { "color": "#38e8ff" }]],
-    "extra": { "siteUrl": "https://newsxis.vercel.app", "eas": { "projectId": "" } }
+    "extra": { "siteUrl": "https://newsxis.apixis.dev", "eas": { "projectId": "" } }
   }
 }
