@@ -2,6 +2,12 @@
 
 Every AI model, bot or agent that changes anything in this repo appends a dated entry here (what + why).
 
+## 2026-10-17 — Grok: paper newsroom redesign
+- The approved light newsroom is on the same branch as the logo kit. Header uses `/brand/mark.png` with the name under it. Palette is red `#F03050`, blue `#1E5BB8` / `#459BE2`, paper `#F4F7FB`, ink `#10182C`. The footer row is "Other Ixis companies" and names Ominixis. Recovra is omitted because it merged into Deduxis.
+- Sign-in stays Apixis-ID-only. An empty `APIXIS_CLIENT_ID` hides the button and the start route returns to `/login` instead of opening the Wallet with a blank client id. The header has one sign-in control. The Live badge appears only when a story was published in the last three hours. Hovering a story flies the globe to its coordinates. Ask Cixy falls back to headlines already on the map when the model is unavailable. Login copy no longer mentions chat. `/api/health` counts the default Facebook Page as linked. Story and social shares use `/brand/og-image.png`. `/api/card` returns that file if drawing the card throws.
+- Why: Awad approved the mockups, and the eight phase-2 fixes should fail closed when a key is missing. No env edits. No migrations. No Stripe changes.
+- Undo: revert commit `7a39c39` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
 ## 2026-10-17 — Grok: official red/blue globe logo
 - Awad supplied the official lockup and mark (glossy red/blue globe, N, orbit rings). They replace the cyan raster in `web/public/brand/`. `logo-full.png` and `mark.png` are the supplied cutouts, unchanged. `banner.png`, `facebook-cover.png`, and `facebook-profile.png` are the supplied files.
 - `logo-full-white.png` and `mark-white.png` are white silhouettes derived from those cutouts. They keep the original alpha. Official white art was not supplied.

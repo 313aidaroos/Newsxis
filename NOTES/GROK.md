@@ -1,5 +1,13 @@
 # Grok notes
 
+## 2026-10-17 — Paper newsroom redesign
+
+Branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+
+The site theme is the approved paper newsroom. Logo files in `web/public/brand/` are unchanged. `APIXIS_CLIENT_ID` empty means the header omits sign-in and `/auth/apixis/start` redirects back to `/login?error=signin_not_connected`. Live is three hours (`LIVE_WINDOW_MS`). Globe focus is `focusForStory`. Cixy's offline line is `cixyReadout`. Shares use `/brand/og-image.png`. Health `facebookPage` follows `facebookPageUrl()`, so the default Page counts as linked.
+
+Undo: revert commit `7a39c39` on branch `cursor/transparent-png-logo-2ef4`.
+
 ## 2026-10-17 — Official red/blue globe logo
 
 Branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
