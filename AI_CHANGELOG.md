@@ -6,7 +6,7 @@ Every AI model, bot or agent that changes anything in this repo appends a dated 
 - The site icon was an SVG globe on a solid `#05070f` plate (`web/src/app/icon.svg`, `web/public/icon.svg`, `mobile/assets/icon.svg`), plus `web/public/favicon.ico` and `web/public/favicon.png`. No raster master exists, and `/workspace/brand-kits` has no Newsxis kit, so the mark was rasterized from that SVG with the plate removed.
 - One kit, `web/public/brand/`, served at `/brand/`. PNG and ICO only. Header, favicon, apple-touch icon, manifest, and Open Graph / Twitter use those files. Story cards embed `mark.png`. `banner.png`, `facebook-cover.png`, and `facebook-profile.png` are listed as pending and are not in the folder. No env vars. No migrations.
 - Why: Awad's rule. Every site embeds its logo as a transparent PNG, with no SVG and no plate behind the mark.
-- Undo: revert the commit on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
+- Undo: revert commit `dc09260` on branch `cursor/transparent-png-logo-2ef4`. Do not merge from this note.
 
 ## 2026-10-14 — Grok: Socixis flag, daily report, social gate
 - Socixis Social stays a tab and renders the family feed client only when `APIXIS_WORLD_KEY` is set or `SOCIXIS_FEED=on`. Otherwise the tab says the feed is not connected. The feed-client copy is not edited.

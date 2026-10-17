@@ -8,7 +8,7 @@ There was no raster logo and no central kit under `/workspace/brand-kits`. The S
 
 The header and the sign-in card use `/brand/mark.png`. Root metadata, the manifest, and `/favicon.ico` (a rewrite) use the kit. The story image route reads `public/brand/mark.png` and the colors in `brand.json`. The mobile app points at `web/public/brand/mark.png` instead of keeping a second file. `banner.png`, `facebook-cover.png`, and `facebook-profile.png` are pending in `brand.json` and the kit README.
 
-Undo: revert the commit on branch `cursor/transparent-png-logo-2ef4`.
+Undo: revert commit `dc09260` on branch `cursor/transparent-png-logo-2ef4`.
 
 ## 2026-10-14 — Socixis flag, daily report, social gate
 
