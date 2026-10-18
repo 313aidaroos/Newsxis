@@ -8,8 +8,8 @@ export const SITE_DESCRIPTION =
 export const PUBLIC_PATHS = ["/", "/feed", "/radio", "/briefing", "/report", "/about", "/support", "/terms", "/privacy", "/login", "/billing"] as const;
 
 export function publicSiteUrl(raw = process.env.NEXT_PUBLIC_SITE_URL): string {
-  const value = (raw ?? "https://newsxis.vercel.app").trim();
-  return value.replace(/\/$/, "") || "https://newsxis.vercel.app";
+  const value = (raw ?? "https://newsxis.apixis.dev").trim();
+  return value.replace(/\/$/, "") || "https://newsxis.apixis.dev";
 }
 
 /** Official Newsxis Facebook Page. Used when NEXT_PUBLIC_FACEBOOK_PAGE_URL is unset. */

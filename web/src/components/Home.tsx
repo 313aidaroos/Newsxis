@@ -137,6 +137,7 @@ export function Home({ initialStories, initialStations, initialBriefing, showGra
           {narration?.text && (
             <div className="nx-globe-ui" style={{ top: 12, left: 12, right: 12 }}>
               <div className="nx-globe-panel" style={{ maxWidth: 640, alignItems: "flex-start" }}>
+                <img className="nx-cixy-orb" src="/cixy/cixy-newsxis-avatar.webp" alt="" width={30} height={30} style={{ width: 30, height: 30 }} />
                 <div style={{ flex: 1 }}>
                   <div className="nx-kicker">Cixy · {sliderLabel}</div>
                   <div style={{ fontSize: 13.5, lineHeight: 1.5 }}>{narration.text}</div>

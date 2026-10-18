@@ -42,9 +42,9 @@ test("social scope matching", () => {
 
 test("social text stays inside platform limits", () => {
   const s = { slug: "a", headline: "H".repeat(200), summary: "S".repeat(400), severity: 5, confirmed: false, disputed: false, ai_label: "Written by Cixy from WNYC", place_name: "New York", country: "US" } as Story;
-  assert.ok(socialText(s, "https://newsxis.vercel.app", "x").length <= 280);
-  assert.ok(socialText(s, "https://newsxis.vercel.app", "bluesky").length <= 300);
-  assert.match(socialText(s, "https://newsxis.vercel.app", "x"), /^BREAKING/);
+  assert.ok(socialText(s, "https://newsxis.apixis.dev", "x").length <= 280);
+  assert.ok(socialText(s, "https://newsxis.apixis.dev", "bluesky").length <= 300);
+  assert.match(socialText(s, "https://newsxis.apixis.dev", "x"), /^BREAKING/);
 });
 
 test("geo helpers", () => {
