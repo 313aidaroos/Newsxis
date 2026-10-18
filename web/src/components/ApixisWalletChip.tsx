@@ -100,13 +100,7 @@ export function ApixisWalletChip({ className, next }: { className?: string; next
         <span aria-hidden="true">✦</span>
         {amount} Ixis
       </a>
-      {/* 2026-09-28 Grok Developer Bot: never ask a signed-in person to "Sign in" again. Signed out →
-          "Sign in"; signed in with email only → "Link Apixis ID". */}
-      {wallet.loaded && !wallet.signedIn && (
-        <a className="apx-wallet-signin" href={`/login?next=${encodeURIComponent(next ?? here)}`} style={{ color: "inherit", fontSize: 11, textDecoration: "underline", whiteSpace: "nowrap", opacity: 0.85 }}>
-          Sign in
-        </a>
-      )}
+      {/* Sign-in lives once, on the header button. This chip only links an account that is already signed in. */}
       {wallet.loaded && wallet.signedIn && !wallet.linked && (
         <a className="apx-wallet-signin" href={signIn} title="Connect this account to your Apixis ID to use one Wallet everywhere" style={{ color: "inherit", fontSize: 11, textDecoration: "underline", whiteSpace: "nowrap", opacity: 0.85 }}>
           Link Apixis ID

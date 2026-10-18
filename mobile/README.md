@@ -9,4 +9,4 @@ cd mobile && npm install
 npx expo start              # scan with Expo Go
 npx eas build -p ios        # store builds (Apple $99/yr, Google $25 once)
 ```
-Set `extra.siteUrl` in `app.json` to the live site. Replace `assets/icon.png` with a 1024×1024 PNG export of `assets/icon.svg`.
+Set `extra.siteUrl` in `app.json` to the live site. The app icon is `web/public/brand/mark.png`. Do not add a second copy.

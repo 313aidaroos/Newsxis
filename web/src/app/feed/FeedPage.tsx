@@ -55,7 +55,7 @@ export function FeedPage({ showGraphic = false, family = "off" }: { showGraphic?
         {(["news", "reporters", "family"] as Tab[]).map((k) => <button key={k} type="button" role="tab" className={tab === k ? "active" : ""} aria-selected={tab === k} onClick={() => setTab(k)}>{k === "news" ? "Cixy · News" : k === "reporters" ? "Reporters" : "Socixis Social"}</button>)}
       </div>
       {tab === "news" && (
-        <div className="nx-grid" style={{ gridTemplateColumns: "minmax(0,1fr) 280px" }}>
+        <div className="nx-split">
           <div className="nx-grid">
             {stories.length === 0 && !loading && <div className="nx-empty">No stories match yet.</div>}
             {stories.map((s) => <StoryCard key={s.id} s={s} />)}
