@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Nav } from "@/components/Nav";
-import { FAMILY_COMPANIES, SITE_DESCRIPTION, SITE_NAME, publicSiteUrl } from "@/lib/public-site";
+import { IxisCompanies } from "@/components/IxisCompanies";
+import { SITE_DESCRIPTION, SITE_NAME, publicSiteUrl } from "@/lib/public-site";
 
 const siteUrl = publicSiteUrl();
 const title = "Newsxis — real-time news for every place on Earth";
@@ -57,9 +58,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
           </div>
           <div className="nx-family">
-            <h2>Other Ixis companies</h2>
+            <h2>Ixis family</h2>
             <div className="nx-family-row">
-              {FAMILY_COMPANIES.map((company) => <a key={company.name} href={company.href} target="_blank" rel="noreferrer">{company.name}</a>)}
+              <IxisCompanies current="Newsxis" />
             </div>
           </div>
         </footer>
