@@ -107,7 +107,7 @@ test("brand kit matches the family file list", () => {
   assert.deepEqual(onDisk, [...PRESENT].sort());
   const meta = JSON.parse(readFileSync(path.join(brandDir, "brand.json"), "utf8"));
   assert.equal(meta.name, "Newsxis");
-  assert.equal(meta.domain, "newsxis.vercel.app");
+  assert.equal(meta.domain, "https://newsxis.apixis.dev");
   assert.equal(typeof meta.tagline, "string");
   for (const key of ["primary", "accent", "background", "text"]) assert.match(meta.colors[key], /^#[0-9a-f]{6}$/);
   assert.equal(meta.colors.primary, "#0259d9");
@@ -181,11 +181,22 @@ test("favicon.ico is built from transparent 16 and 32 PNG frames", () => {
 });
 
 test("the repo has no other logo file and no svg", () => {
+  const cixyDir = path.join(repo, "web/public/cixy");
+  const cixyOk = new Set(["cixy-newsxis-avatar.webp", "cixy-newsxis.png", "cixy-newsxis.webp"]);
   const files = walk(repo);
   const images = files.filter((file) => /\.(png|ico|svg|webp|jpe?g|gif)$/i.test(file));
   for (const file of images) {
     assert.equal(path.extname(file).toLowerCase() === ".svg", false, file);
+    if (file.startsWith(cixyDir + path.sep)) {
+      assert.ok(cixyOk.has(path.basename(file)), `unexpected cixy file ${path.relative(repo, file)}`);
+      assert.ok(statSync(file).size > 1000, file);
+      continue;
+    }
     assert.ok(file.startsWith(brandDir + path.sep), `unexpected image ${path.relative(repo, file)}`);
+  }
+  const avatar = "/cixy/cixy-newsxis-avatar.webp";
+  for (const rel of ["web/src/components/Home.tsx", "web/src/app/radio/RadioPage.tsx", "web/src/app/briefing/page.tsx"]) {
+    assert.ok(readFileSync(path.join(repo, rel), "utf8").includes(avatar), rel);
   }
   const code = files.filter((file) => /\.(tsx?|jsx?|mjs|css|json)$/.test(file));
   for (const file of code) {

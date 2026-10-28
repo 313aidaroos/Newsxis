@@ -1,6 +1,6 @@
 {
   "name": "Newsxis",
-  "domain": "newsxis.vercel.app",
+  "domain": "https://newsxis.apixis.dev",
   "tagline": "Real-time news for every place on Earth",
   "colors": {
     "primary": "#0259d9",

@@ -60,8 +60,17 @@ export function healthFacebookLinked(raw?: string | null): boolean {
   return Boolean(facebookPageUrl(raw));
 }
 
-/** Link-preview image. The brand lockup, not a generated stand-in. */
+/** Site-wide link preview. The brand lockup, not a story. */
 export const SHARE_IMAGE_PATH = "/brand/og-image.png";
+
+/** Per-story Open Graph image. Drawn from that story's headline and summary. */
+export function storyShareImage(slug: string): string {
+  return `/api/card/${encodeURIComponent(slug)}`;
+}
+
+export function storyCardUrl(site: string, slug: string): string {
+  return `${site.replace(/\/$/, "")}${storyShareImage(slug)}`;
+}
 
 /**
  * Other Ixis companies. Recovra is omitted: it merged into Deduxis.

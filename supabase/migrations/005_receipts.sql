@@ -12,6 +12,7 @@ alter table public.revenue_events
 
 drop policy if exists "buyer reads own revenue" on public.revenue_events;
 create policy "buyer reads own revenue" on public.revenue_events
-  for select using (user_id = (select auth.uid()));
+  for select to authenticated
+  using (user_id = (select auth.uid()));
 
 grant select on public.revenue_events to authenticated;

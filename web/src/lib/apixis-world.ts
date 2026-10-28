@@ -33,6 +33,7 @@ export const APIXIS_ENTER_CLIENTS = [
   "launchixis",
   "deduxis",
   "geoxis",
+  "newsxis",
   "contentbot",
   "nurserytoons",
   "ominix",

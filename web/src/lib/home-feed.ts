@@ -34,6 +34,22 @@ export function feedIsLive(publishedAt: Array<string | null | undefined>, now = 
   });
 }
 
+export function pinIsLive(pinnedUntil: string | null | undefined, now = Date.now()): boolean {
+  if (!pinnedUntil) return false;
+  const t = Date.parse(pinnedUntil);
+  return Number.isFinite(t) && t > now;
+}
+
+/** Paid pins stay first. Everything else keeps newest-first. */
+export function withPinsFirst<T extends { pinned_until?: string | null; published_at?: string | null }>(stories: T[], now = Date.now()): T[] {
+  return [...stories].sort((a, b) => {
+    const ap = pinIsLive(a.pinned_until, now) ? 1 : 0;
+    const bp = pinIsLive(b.pinned_until, now) ? 1 : 0;
+    if (ap !== bp) return bp - ap;
+    return Date.parse(b.published_at ?? "") - Date.parse(a.published_at ?? "");
+  });
+}
+
 export function focusForStory(story: { lat: number | null; lng: number | null }): { lat: number; lng: number; zoom: number } | null {
   if (story.lat == null || story.lng == null || !Number.isFinite(story.lat) || !Number.isFinite(story.lng)) return null;
   return { lat: story.lat, lng: story.lng, zoom: 6 };

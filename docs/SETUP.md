@@ -4,9 +4,9 @@ Do these in order. Each one is a copy/paste. Nothing is faked: the site shows ex
 
 ## 1. Supabase (the database) — ~$10/month
 1. supabase.com → Apixis Dev LLC org → **New project** → name `newsxis`, region `us-east-1`, strong password.
-2. SQL Editor → paste `supabase/migrations/001_newsxis.sql` → Run. Then `002_seed_sources.sql`, `003_security.sql`, `004_advisor_fixes.sql`, `005_receipts.sql`, and `006_daily_report.sql`. 003 locks admin flags, post publishing, private profile fields, and media uploads. 006 is the opt-in daily report.
+2. SQL Editor → paste `supabase/migrations/001_newsxis.sql` → Run. Then `002_seed_sources.sql`, `003_security.sql`, `004_advisor_fixes.sql`, `005_receipts.sql`, `006_daily_report.sql`, and `007_radio_browser.sql`. 003 locks admin flags, post publishing, private profile fields, and media uploads. 006 is the opt-in daily report. 007 fixes or turns off radio streams a browser cannot play. 005, 006, and 007 are safe to run again.
 3. Project Settings → API: copy **Project URL**, **anon key**, **service_role key**.
-4. Authentication → URL configuration: Site URL = your Vercel URL; add `https://<vercel-url>/auth/apixis/callback` to redirect URLs.
+4. Authentication → URL configuration: Site URL = `https://newsxis.apixis.dev`; add `https://newsxis.apixis.dev/auth/apixis/callback` to redirect URLs.
 
 ## 2. Vercel (the website) — free to test, Pro ($20/mo) at launch
 1. vercel.com → Add New → Project → import `313aidaroos/Newsxis` → **Root Directory: `web`** → Deploy.

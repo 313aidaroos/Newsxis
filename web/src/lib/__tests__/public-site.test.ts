@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_FACEBOOK_PAGE_URL, FAMILY_COMPANIES, SHARE_IMAGE_PATH, apixisClientConfigured, apixisLoginHref, facebookPageEmbeds, facebookPageUrl, healthFacebookLinked, publicSiteUrl } from "../public-site";
+import { DEFAULT_FACEBOOK_PAGE_URL, FAMILY_COMPANIES, SHARE_IMAGE_PATH, apixisClientConfigured, apixisLoginHref, facebookPageEmbeds, facebookPageUrl, healthFacebookLinked, publicSiteUrl, storyCardUrl, storyShareImage } from "../public-site";
 
 test("facebook page url accepts an https Facebook path, including profile.php?id=", () => {
   const previous = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_URL;
@@ -39,6 +39,8 @@ test("health treats the default Facebook page as linked, and sign-in waits for a
   assert.equal(apixisClientConfigured("   "), false);
   assert.equal(apixisClientConfigured("newsxis"), true);
   assert.equal(SHARE_IMAGE_PATH, "/brand/og-image.png");
+  assert.equal(storyShareImage("bridge-collapse"), "/api/card/bridge-collapse");
+  assert.equal(storyCardUrl("https://newsxis.apixis.dev/", "bridge collapse"), "https://newsxis.apixis.dev/api/card/bridge%20collapse");
 });
 
 test("the family row names Ominixis and leaves Recovra out", () => {

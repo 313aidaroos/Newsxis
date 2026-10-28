@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseRss, stripHtml } from "../ingest/fetchers";
 import { applyBreakingRules, type Classified } from "../ai/classify";
-import { inScope } from "../ingest/pipeline";
+import { inScope, isSameEvent, wantsBreakingBriefing, type TwinText } from "../ingest/pipeline";
 import { socialText } from "../ai/social-text";
 import { haversineKm, langForPlace, regionOf, scopeKeys } from "../geo";
 import { slugify } from "../slug";
@@ -29,6 +29,40 @@ test("owner's breaking rules force severity 5", () => {
   assert.equal(applyBreakingRules({ ...base(), category: "war", headline: "Army launches offensive" }).severity, 5);
   assert.equal(applyBreakingRules({ ...base(), category: "strike", headline: "Nationwide strike begins" }).severity, 5);
   assert.equal(applyBreakingRules({ ...base(), category: "weather", headline: "Light rain" }).severity, 2);
+});
+
+function place(over: Partial<TwinText> = {}): TwinText {
+  return { headline: "Senate passes spending bill after a late vote", summary: "Lawmakers approved the federal spending bill after a late vote in the capital", category: "politics", lat: null, lng: null, city: null, region: null, country: "US", ...over };
+}
+
+test("a story with no city does not merge into a different city's story", () => {
+  const national = place({ headline: "Bridge collapses in the storm after heavy rain", summary: "A bridge collapsed in the storm after heavy rain and high water", category: "disaster" });
+  const city = place({ ...national, city: "New York", region: "NY" });
+  assert.equal(isSameEvent(national, city), false);
+  assert.equal(isSameEvent(city, national), false);
+});
+
+test("same country is not enough when the regions differ or the wording is only loosely alike", () => {
+  const national = place();
+  assert.equal(isSameEvent(national, place({ region: "TX" })), false);
+  assert.equal(isSameEvent(place({ region: "TX" }), place({ region: "CA" })), false);
+  assert.equal(isSameEvent(national, place({ headline: "Markets close higher", summary: "Stocks rose in afternoon trading", category: "economy" })), false);
+});
+
+test("the same national story, the same city, or a nearby point still dedupes", () => {
+  const national = place();
+  assert.equal(isSameEvent(national, place({ headline: "Senate passes spending bill after a late night vote" })), true);
+  const city = place({ city: "New York", region: "NY", lat: 40.71, lng: -74.0 });
+  assert.equal(isSameEvent(city, place({ ...city, headline: "Senate passes the spending bill after a late vote" })), true);
+  const nearby = place({ ...city, city: "Jersey City", region: "NJ", lat: 40.73, lng: -74.04, country: "US" });
+  assert.equal(isSameEvent(city, nearby), true);
+});
+
+test("breaking briefings are requested for a new severity-5 story, not a repeat confirmation", () => {
+  assert.equal(wantsBreakingBriefing("story", 5, false), true);
+  assert.equal(wantsBreakingBriefing("story", 4, false), false);
+  assert.equal(wantsBreakingBriefing("confirmation", 5, false), true);
+  assert.equal(wantsBreakingBriefing("confirmation", 5, true), false);
 });
 
 test("social scope matching", () => {

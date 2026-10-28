@@ -158,6 +158,22 @@ export async function startReporterCheckout(opts: {
   return startWalletCheckout({ ...opts, lookupKeys, tier: "reporter" });
 }
 
+/** Pin is one card charge. Ixis uses redeem(), not Checkout. The story id stays on Newsxis. */
+export async function startBoostCheckout(opts: {
+  owner: Owner;
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<BillingResult<CheckoutSuccess>> {
+  return startWalletCheckout({
+    owner: opts.owner,
+    method: "card",
+    lookupKeys: [NEWSXIS_PRODUCTS["newsxis.boost.story"].lookupKey],
+    tier: "boost",
+    successUrl: opts.successUrl,
+    cancelUrl: opts.cancelUrl,
+  });
+}
+
 /** Sponsor is one charge. Card opens Wallet Checkout. Ixis uses redeem(), not a subscription. */
 export async function startSponsorCheckout(opts: {
   owner: Owner;

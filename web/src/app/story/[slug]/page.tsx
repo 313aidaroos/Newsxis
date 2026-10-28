@@ -5,7 +5,9 @@ import { SeverityChip, StatusChip, ago } from "@/components/StoryCard";
 import { Comments } from "@/components/Comments";
 import { GraphicMedia } from "@/components/GraphicMedia";
 import { showGraphicMedia } from "@/lib/safety";
-import { SHARE_IMAGE_PATH } from "@/lib/public-site";
+import { pinIsLive } from "@/lib/home-feed";
+import { storyShareImage } from "@/lib/public-site";
+import { BoostStory } from "@/components/BoostStory";
 import { socixisFeedEnabled } from "@/lib/socixis";
 import { currentProfile, supabaseConfigured, supabaseUser } from "@/lib/supabase/server";
 import { CATEGORY_LABEL, type Source, type Story, type StorySource, type StoryThread } from "@/lib/types";
@@ -37,12 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const d = await load(slug);
   if (!d) return { title: "Story" };
   const description = d.story.summary;
-  const image = SHARE_IMAGE_PATH;
+  const image = storyShareImage(slug);
   return {
     title: d.story.headline,
     description,
     alternates: { canonical: `/story/${slug}` },
-    openGraph: { title: d.story.headline, description, url: `/story/${slug}`, images: [image], type: "article" },
+    openGraph: { title: d.story.headline, description, url: `/story/${slug}`, images: [{ url: image, width: 1200, height: 630, alt: d.story.headline }], type: "article" },
     twitter: { card: "summary_large_image", title: d.story.headline, description, images: [image] },
   };
 }
@@ -64,6 +66,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         <article>
           <div className="nx-story-meta" style={{ marginBottom: 10 }}>
             <SeverityChip s={s} /><span className="nx-chip">{CATEGORY_LABEL[s.category]}</span><StatusChip s={s} />
+            {pinIsLive(s.pinned_until) && <span className="nx-chip">Pinned</span>}
             <span>{place}{place ? " · " : ""}{ago(s.published_at)}</span>
           </div>
           <h1 className="nx-h1">{s.headline}</h1>
@@ -104,6 +107,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           </div>
         </article>
         <aside className="nx-story-side">
+          <BoostStory storyId={s.id} returnPath={`/story/${s.slug}`} pinnedUntil={s.pinned_until} signedIn={Boolean(profile)} />
           <section className="nx-card">
             <p className="nx-kicker">Cixy</p>
             <h2>On this story</h2>

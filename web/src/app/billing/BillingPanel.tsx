@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { sponsorScopes } from "@/lib/sponsor";
 type BillingPayment = {
   id: string;
   occurredAt: string;
@@ -48,7 +49,9 @@ export function BillingPanel() {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [sponsorName, setSponsorName] = useState("");
+  const [sponsorScope, setSponsorScope] = useState("world");
   const [sponsorMethod, setSponsorMethod] = useState<"card" | "ixis">("card");
+  const scopes = sponsorScopes();
 
   useEffect(() => {
     fetch("/api/billing", { cache: "no-store" }).then((r) => r.json()).then(setData).catch(() => setData(null));
@@ -56,9 +59,11 @@ export function BillingPanel() {
 
   const sponsor = async () => {
     setBusy(true); setMsg(null);
+    const name = sponsorName.trim();
+    if (!name) { setBusy(false); setMsg("Enter the name to read on air. Nothing was charged."); return; }
     const r = sponsorMethod === "card"
-      ? await fetch("/api/billing/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method: "card", product: "newsxis.sponsor.briefing" }) }).then((x) => x.json()).catch(() => ({ ok: false, message: "Could not reach the Wallet." }))
-      : await fetch("/api/redeem", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ productKey: "newsxis.sponsor.briefing", attemptId: crypto.randomUUID(), sponsorName }) }).then((x) => x.json()).catch(() => ({ ok: false, message: "Could not reach the Wallet." }));
+      ? await fetch("/api/billing/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method: "card", product: "newsxis.sponsor.briefing", sponsorName: name, sponsorScope }) }).then((x) => x.json()).catch(() => ({ ok: false, message: "Could not reach the Wallet." }))
+      : await fetch("/api/redeem", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ productKey: "newsxis.sponsor.briefing", attemptId: crypto.randomUUID(), sponsorName: name, sponsorScope }) }).then((x) => x.json()).catch(() => ({ ok: false, message: "Could not reach the Wallet." }));
     setBusy(false);
     if (r.ok && r.url) { window.location.href = r.url; return; }
     if (r.ok) {
@@ -130,8 +135,9 @@ export function BillingPanel() {
       </section>
       <section className="nx-card">
         <h3>Sponsor a briefing · 5,000 Ixis ($50)</h3>
-        <p className="nx-muted">One time. Card opens the Wallet checkout. Ixis is a Wallet redeem. Newsxis never sees a card number.</p>
+        <p className="nx-muted">One time, one day, one briefing. Card opens the Wallet checkout. Ixis is a Wallet redeem. Newsxis never sees a card number. The line is read on briefings for the scope you pick.</p>
         <label className="nx-label">Sponsor line<input className="nx-input" value={sponsorName} onChange={(e) => setSponsorName(e.target.value)} maxLength={80} placeholder="The name to read on air" /></label>
+        <label className="nx-label">Briefing<select className="nx-select" value={sponsorScope} onChange={(e) => setSponsorScope(e.target.value)}>{scopes.map((scope) => <option key={scope.key} value={scope.key}>{scope.label}</option>)}</select></label>
         <div className="nx-actions">
           <label className="nx-layer"><input type="radio" name="sponsor-pay" checked={sponsorMethod === "card"} onChange={() => setSponsorMethod("card")} /> Card</label>
           <label className="nx-layer"><input type="radio" name="sponsor-pay" checked={sponsorMethod === "ixis"} onChange={() => setSponsorMethod("ixis")} /> Ixis</label>

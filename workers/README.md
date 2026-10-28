@@ -7,7 +7,7 @@ segments to the site (`POST /api/worker/transcripts`), where Cixy turns them int
 ```bash
 sudo apt install -y ffmpeg          # Debian/Ubuntu
 cd workers && npm install
-export SITE_URL=https://newsxis.vercel.app
+export SITE_URL=https://newsxis.apixis.dev
 export WORKER_KEY=<same as WORKER_KEY in Vercel>
 # cheapest: your own Whisper server (open source)
 docker run -d -p 8000:8000 fedirz/faster-whisper-server:latest-cpu
