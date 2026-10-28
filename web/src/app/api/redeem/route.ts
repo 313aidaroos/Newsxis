@@ -10,11 +10,14 @@ import { buyIxisUrl, isWalletConfigured, redeem, WalletError } from "@/lib/apixi
 import { apixisOwner } from "@/lib/apixis-login";
 import { currentProfile, serviceConfigured, supabaseAdmin } from "@/lib/supabase/server";
 import { NEWSXIS_PRODUCTS, type NewsxisProduct } from "@/lib/products";
-import { receiptNote } from "@/lib/receipts";
+import { receiptNote, saveRevenueEvent } from "@/lib/receipts";
 import { ageAllowsUse } from "@/lib/safety";
+import { cleanSponsorName, sponsorNote, sponsorScopeKey } from "@/lib/sponsor";
 
 export const dynamic = "force-dynamic";
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PIN_MS = 24 * 60 * 60 * 1000;
 
 export async function POST(request: Request) {
   const { user, profile } = await currentProfile();
@@ -22,7 +25,7 @@ export async function POST(request: Request) {
   if (profile.banned || profile.age_blocked) return fail("not_allowed", 403);
   if (!ageAllowsUse(profile)) return fail("age_required", 403);
   if (!serviceConfigured()) return fail("db_not_configured", 503);
-  const body = await request.json().catch(() => ({})) as { productKey?: string; attemptId?: string; storyId?: string; sponsorName?: string };
+  const body = await request.json().catch(() => ({})) as { productKey?: string; attemptId?: string; storyId?: string; sponsorName?: string; sponsorScope?: string };
   const productKey = body.productKey as NewsxisProduct;
   if (!productKey || !(productKey in NEWSXIS_PRODUCTS)) return fail("unknown_product");
   if (!body.attemptId || body.attemptId.length > 48) return fail("attemptId required");
@@ -30,6 +33,22 @@ export async function POST(request: Request) {
   if (productKey === "newsxis.reporter.monthly" && !profile.activated_at) return fail("activate_first", 409);
 
   const db = supabaseAdmin();
+  let storyId = "";
+  if (productKey === "newsxis.boost.story") {
+    storyId = typeof body.storyId === "string" ? body.storyId : "";
+    if (!UUID.test(storyId)) return fail("story_required");
+    const { data: story } = await db.from("stories").select("id").eq("id", storyId).eq("status", "live").maybeSingle();
+    if (!story) return fail("story_not_found", 404);
+  }
+  let sponsorName = "";
+  let sponsorScope = "world";
+  if (productKey === "newsxis.sponsor.briefing") {
+    sponsorName = cleanSponsorName(body.sponsorName);
+    sponsorScope = sponsorScopeKey(body.sponsorScope) ?? "";
+    if (!sponsorName) return fail("sponsor_name_required");
+    if (!sponsorScope) return fail("sponsor_scope_required");
+  }
+
   const idempotencyKey = `newsxis-${productKey.replace(/\./g, "-")}-${user.id.slice(0, 8)}-${body.attemptId}`.slice(0, 80);
   const owner = (await apixisOwner(user.email)) ?? user.email;
   let previous: Record<string, unknown> = {};
@@ -45,24 +64,27 @@ export async function POST(request: Request) {
           previous = { reporter_active_until: profile.reporter_active_until };
           const base = profile.reporter_active_until && Date.parse(profile.reporter_active_until) > Date.now() ? Date.parse(profile.reporter_active_until) : Date.now();
           await db.from("profiles").update({ reporter_active_until: new Date(base + 30 * 86400e3).toISOString() }).eq("id", user.id);
-        } else if (productKey === "newsxis.boost.story" && body.storyId) {
-          await db.from("stories").update({ pinned_until: new Date(Date.now() + 86400e3).toISOString() }).eq("id", body.storyId);
+        } else if (productKey === "newsxis.boost.story") {
+          const pinned = await db.from("stories").update({ pinned_until: new Date(Date.now() + PIN_MS).toISOString() }).eq("id", storyId).eq("status", "live").select("id");
+          if (pinned.error || !pinned.data?.length) throw new Error("story_not_pinned");
         }
         return true;
       },
       unprovision: async () => {
-        if (productKey === "newsxis.boost.story" && body.storyId) await db.from("stories").update({ pinned_until: null }).eq("id", body.storyId);
+        if (productKey === "newsxis.boost.story") await db.from("stories").update({ pinned_until: null }).eq("id", storyId);
         else await db.from("profiles").update(previous).eq("id", user.id);
       },
     });
     if (!result.ok) return json({ ok: false, error: "insufficient_ixis", needed: result.needed, buy: buyIxisUrl("newsxis", `${siteUrl(request)}/post`) }, 402);
     const p = NEWSXIS_PRODUCTS[productKey];
     const kind = productKey === "newsxis.activate" ? "activation" : productKey === "newsxis.reporter.monthly" ? "seat" : productKey === "newsxis.sponsor.briefing" ? "sponsor" : "boost";
-    const sponsorName = typeof body.sponsorName === "string" ? body.sponsorName.replace(/\s+/g, " ").trim().slice(0, 80) : "";
-    const { data: saved } = await db.from("revenue_events").insert({
-      kind, user_id: user.id, ixis: p.ixis, usd: p.ixis / 100, wallet_receipt_id: result.receiptId || null, product_key: productKey,
-      note: receiptNote("ixis", sponsorName ? `Sponsor line: ${sponsorName}` : undefined),
-    }).select("id").single();
+    const extra = productKey === "newsxis.sponsor.briefing"
+      ? undefined
+      : productKey === "newsxis.boost.story" ? `Story: ${storyId}` : undefined;
+    const note = productKey === "newsxis.sponsor.briefing" ? sponsorNote("ixis", sponsorName, sponsorScope) : receiptNote("ixis", extra);
+    const saved = await saveRevenueEvent(db, {
+      kind, user_id: user.id, ixis: p.ixis, usd: p.ixis / 100, wallet_receipt_id: result.receiptId || null, product_key: productKey, note, method: "ixis",
+    });
     return json({ ok: true, productKey, receiptId: result.receiptId, receiptUrl: saved?.id ? `/billing/receipt/${saved.id}` : "/billing" });
   } catch (e) {
     if (e instanceof WalletError) return fail(e.message, e.status === 402 ? 402 : 502, { buy: buyIxisUrl("newsxis", `${siteUrl(request)}/post`) });

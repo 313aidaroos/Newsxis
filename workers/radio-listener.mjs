@@ -17,70 +17,70 @@
 import { spawn } from "node:child_process";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  chooseSources, deepgramListenUrl, ffmpegArgs, isSilence, maxStreams, nextBackoff,
+  onlySlugs, providerFromEnv, segmentSeconds, shouldPostTranscript, transcriptPayload,
+  whisperEndpoint, DEFAULT_BACKOFF_MS,
+} from "./listener-lib.mjs";
 
 const SITE = (process.env.SITE_URL || "http://localhost:3000").replace(/\/$/, "");
 const KEY = process.env.WORKER_KEY || "";
-const PROVIDER = (process.env.STT_PROVIDER || (process.env.DEEPGRAM_API_KEY ? "deepgram" : "whisper")).toLowerCase();
-const SEGMENT = Math.max(20, Number(process.env.SEGMENT_SECONDS || 45));
-const MAX = Math.max(1, Number(process.env.MAX_STREAMS || 6));
-const ONLY = (process.env.ONLY || "").split(",").map((s) => s.trim()).filter(Boolean);
-
-if (!KEY) { console.error("WORKER_KEY is required"); process.exit(1); }
+const PROVIDER = providerFromEnv(process.env);
+const SEGMENT = segmentSeconds(process.env.SEGMENT_SECONDS);
+const MAX = maxStreams(process.env.MAX_STREAMS);
+const ONLY = onlySlugs(process.env.ONLY);
 
 const log = (...a) => console.log(new Date().toISOString(), ...a);
 
-async function api(path, init = {}) {
-  const res = await fetch(`${SITE}${path}`, { ...init, headers: { "x-worker-key": KEY, "content-type": "application/json", ...(init.headers || {}) } });
+async function api(apiPath, init = {}) {
+  const res = await fetch(`${SITE}${apiPath}`, { ...init, headers: { "x-worker-key": KEY, "content-type": "application/json", ...(init.headers || {}) } });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`${path} → ${res.status} ${body.error || ""}`);
+  if (!res.ok) throw new Error(`${apiPath} → ${res.status} ${body.error || ""}`);
   return body;
 }
 
-// ---------------------------------------------------------------- speech to text
 async function transcribe(wavPath, lang) {
   const audio = await readFile(wavPath);
-  if (audio.length < 20_000) return "";    // silence / stream hiccup
+  if (isSilence(audio.length)) return "";
   if (PROVIDER === "deepgram") {
-    const params = new URLSearchParams({ model: "nova-3", smart_format: "true", punctuate: "true", language: lang === "es" ? "es" : lang === "en" ? "en" : "multi" });
-    const res = await fetch(`https://api.deepgram.com/v1/listen?${params}`, { method: "POST", headers: { authorization: `Token ${process.env.DEEPGRAM_API_KEY}`, "content-type": "audio/wav" }, body: audio });
+    const res = await fetch(deepgramListenUrl(lang), { method: "POST", headers: { authorization: `Token ${process.env.DEEPGRAM_API_KEY}`, "content-type": "audio/wav" }, body: audio });
     if (!res.ok) throw new Error(`deepgram ${res.status}`);
     const j = await res.json();
     return j.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? "";
   }
-  const url = (process.env.WHISPER_URL || "http://localhost:8000").replace(/\/$/, "");
   const form = new FormData();
   form.append("file", new Blob([audio], { type: "audio/wav" }), "segment.wav");
   form.append("model", process.env.WHISPER_MODEL || "Systran/faster-whisper-small");
   form.append("response_format", "json");
   if (lang && lang.length === 2) form.append("language", lang);
-  const res = await fetch(`${url}/v1/audio/transcriptions`, { method: "POST", body: form });
+  const res = await fetch(whisperEndpoint(process.env.WHISPER_URL), { method: "POST", body: form });
   if (!res.ok) throw new Error(`whisper ${res.status}`);
   return (await res.json()).text ?? "";
 }
 
-// ---------------------------------------------------------------- one stream → endless segments
 async function listen(source, signal) {
-  const dir = await mkdtemp(join(tmpdir(), `nx-${source.slug || source.id}-`));
-  let backoff = 5_000;
+  const dir = await mkdtemp(path.join(tmpdir(), `nx-${source.slug || source.id}-`));
+  let backoff = DEFAULT_BACKOFF_MS;
   while (!signal.aborted) {
     const startedAt = new Date();
-    const out = join(dir, `${Date.now()}.wav`);
-    // 16 kHz mono PCM, exactly SEGMENT seconds, reconnect-friendly flags.
-    const ff = spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "10", "-user_agent", "Newsxis/0.1 (+https://newsxis.apixis.dev)", "-i", source.stream_url, "-t", String(SEGMENT), "-ac", "1", "-ar", "16000", "-f", "wav", "-y", out], { stdio: ["ignore", "ignore", "pipe"] });
+    const out = path.join(dir, `${Date.now()}.wav`);
+    const ff = spawn("ffmpeg", ffmpegArgs(source.stream_url, SEGMENT, out), { stdio: ["ignore", "ignore", "pipe"] });
     let err = "";
     ff.stderr.on("data", (d) => { err += d.toString(); });
     const code = await new Promise((res) => { ff.on("close", res); signal.addEventListener("abort", () => ff.kill("SIGTERM"), { once: true }); });
     if (code !== 0) {
       log(`[${source.name}] ffmpeg exit ${code}: ${err.trim().slice(0, 160)} — retry in ${backoff / 1000}s`);
-      await new Promise((r) => setTimeout(r, backoff)); backoff = Math.min(backoff * 2, 120_000);
+      await new Promise((r) => setTimeout(r, backoff));
+      backoff = nextBackoff(backoff);
       continue;
     }
-    backoff = 5_000;
+    backoff = DEFAULT_BACKOFF_MS;
     try {
       const text = (await transcribe(out, source.lang)).trim();
-      if (text.split(/\s+/).length >= 12) {
-        await api("/api/worker/transcripts", { method: "POST", body: JSON.stringify({ source_id: source.id, started_at: startedAt.toISOString(), ended_at: new Date().toISOString(), lang: source.lang, text }) });
+      if (shouldPostTranscript(text)) {
+        await api("/api/worker/transcripts", { method: "POST", body: JSON.stringify(transcriptPayload(source, startedAt.toISOString(), new Date().toISOString(), text)) });
         log(`[${source.name}] ${text.split(/\s+/).length} words`);
       }
     } catch (e) { log(`[${source.name}] ${e.message}`); }
@@ -89,17 +89,26 @@ async function listen(source, signal) {
   await rm(dir, { recursive: true, force: true });
 }
 
-// ---------------------------------------------------------------- main
 const running = new Map();
 const ctl = new AbortController();
-process.on("SIGINT", () => { log("stopping"); ctl.abort(); setTimeout(() => process.exit(0), 2000); });
-process.on("SIGTERM", () => { ctl.abort(); setTimeout(() => process.exit(0), 2000); });
 
 async function sync() {
   const { sources } = await api("/api/worker/transcripts");
-  const wanted = sources.filter((s) => s.stream_url && (!ONLY.length || ONLY.includes(s.slug))).slice(0, MAX);
+  const wanted = chooseSources(sources, { only: ONLY, max: MAX });
   for (const s of wanted) if (!running.has(s.id)) { log(`listening: ${s.name}`); running.set(s.id, listen(s, ctl.signal).catch((e) => log(`[${s.name}] stopped: ${e.message}`))); }
   log(`${running.size} stream(s) live (${PROVIDER})`);
 }
-await sync();
-setInterval(() => sync().catch((e) => log("sync failed:", e.message)), 10 * 60_000);
+
+function ranAsScript() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  return path.resolve(entry) === fileURLToPath(import.meta.url);
+}
+
+if (ranAsScript()) {
+  if (!KEY) { console.error("WORKER_KEY is required"); process.exit(1); }
+  process.on("SIGINT", () => { log("stopping"); ctl.abort(); setTimeout(() => process.exit(0), 2000); });
+  process.on("SIGTERM", () => { ctl.abort(); setTimeout(() => process.exit(0), 2000); });
+  await sync();
+  setInterval(() => sync().catch((e) => log("sync failed:", e.message)), 10 * 60_000);
+}

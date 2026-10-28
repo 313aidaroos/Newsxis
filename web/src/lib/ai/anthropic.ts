@@ -17,8 +17,18 @@ export function anthropic(): Anthropic {
   return client;
 }
 
-export const FAST_MODEL = process.env.ANTHROPIC_FAST_MODEL || "claude-haiku-4-5";
-export const SMART_MODEL = process.env.ANTHROPIC_SMART_MODEL || "claude-opus-5-5";
+/**
+ * Defaults match web/.env.example.
+ * Fast: `claude-haiku-4-5` is the alias of the dated snapshot `claude-haiku-4-5-20251001`.
+ * Smart: Claude Sonnet 5.5 (`claude-sonnet-5-5`). The blueprint uses Sonnet for research
+ * and briefings. `claude-opus-5-5` is a valid model too; set ANTHROPIC_SMART_MODEL to use it.
+ * Web search: `web_search_20260209` is the dynamic-filtering tool Sonnet 5.5 accepts.
+ */
+export const DEFAULT_FAST_MODEL = "claude-haiku-4-5";
+export const DEFAULT_SMART_MODEL = "claude-sonnet-5-5";
+export const WEB_SEARCH_TOOL_TYPE = "web_search_20260209";
+export const FAST_MODEL = process.env.ANTHROPIC_FAST_MODEL || DEFAULT_FAST_MODEL;
+export const SMART_MODEL = process.env.ANTHROPIC_SMART_MODEL || DEFAULT_SMART_MODEL;
 
 export class AiUnavailable extends Error {
   code: string;
@@ -53,7 +63,7 @@ export async function fastJson<T>(system: string, user: string, maxTokens = 1200
 
 /** One strong call (research with web search, briefings). Adaptive thinking is the model default. */
 export async function smartText(system: string, user: string, opts: { webSearch?: boolean; maxTokens?: number; effort?: "low" | "medium" | "high" } = {}): Promise<{ text: string; message: Anthropic.Message }> {
-  const tools = opts.webSearch ? [{ type: "web_search_20260209", name: "web_search", max_uses: 6 }] : undefined;
+  const tools = opts.webSearch ? [{ type: WEB_SEARCH_TOOL_TYPE, name: "web_search", max_uses: 6 }] : undefined;
   const stream = anthropic().messages.stream({
     model: SMART_MODEL,
     max_tokens: opts.maxTokens ?? 8000,

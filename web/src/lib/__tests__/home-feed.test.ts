@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cixyReadout, feedIsLive, feedReasonFetches, focusForStory, isIdleSpinMove, LIVE_WINDOW_MS, type FeedReason, type HomeMode } from "../home-feed";
+import { cixyReadout, feedIsLive, feedReasonFetches, focusForStory, isIdleSpinMove, LIVE_WINDOW_MS, pinIsLive, withPinsFirst, type FeedReason, type HomeMode } from "../home-feed";
 
 const reasons: FeedReason[] = ["filter", "mode", "pan", "spin", "refresh"];
 const modes: HomeMode[] = ["world", "view"];
@@ -46,4 +46,16 @@ test("Cixy falls back to stories already on the map", () => {
   const text = cixyReadout([{ headline: "Ferry resumes", place: "New York" }], "offline");
   assert.match(text, /Ferry resumes \(New York\)/);
   assert.match(text, /brain is connected/);
+});
+
+test("a live pin sorts ahead of a newer story, and an expired pin does not", () => {
+  const now = Date.parse("2026-10-28T12:00:00.000Z");
+  assert.equal(pinIsLive("2026-10-28T18:00:00.000Z", now), true);
+  assert.equal(pinIsLive("2026-10-28T11:00:00.000Z", now), false);
+  const ordered = withPinsFirst([
+    { id: "new", published_at: "2026-10-28T11:00:00.000Z", pinned_until: null },
+    { id: "old-pin", published_at: "2026-10-27T11:00:00.000Z", pinned_until: "2026-10-28T18:00:00.000Z" },
+    { id: "expired", published_at: "2026-10-28T10:00:00.000Z", pinned_until: "2026-10-28T11:00:00.000Z" },
+  ], now);
+  assert.deepEqual(ordered.map((row) => row.id), ["old-pin", "new", "expired"]);
 });

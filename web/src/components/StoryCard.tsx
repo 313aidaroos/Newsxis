@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { pinIsLive } from "@/lib/home-feed";
 import { CATEGORY_LABEL, type Story } from "@/lib/types";
 
 export function ago(iso: string | null | undefined): string {
@@ -28,6 +29,7 @@ export function StoryCard({ s, compact, onFocus }: { s: Story; compact?: boolean
         <SeverityChip s={s} />
         {s.severity < 3 && <span className="nx-chip">{CATEGORY_LABEL[s.category]}</span>}
         <StatusChip s={s} />
+        {pinIsLive(s.pinned_until) && <span className="nx-chip">Pinned</span>}
         <span>{ago(s.published_at)}</span>
         {place && <span>· {place}</span>}
       </div>

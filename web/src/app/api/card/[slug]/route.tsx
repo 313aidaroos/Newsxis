@@ -20,22 +20,24 @@ function ogFile() {
 }
 
 export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
-  try {
   const { slug } = await ctx.params;
-  let story: Partial<Story> = { headline: "Newsxis", summary: "Real-time news for every place on Earth, read by Cixy.", severity: 2, category: "other" };
-  if (supabaseConfigured()) {
-    try {
-      const db = await supabaseUser();
-      const { data } = await db.from("stories").select("headline,summary,severity,category,place_name,country,city,confirmed,disputed,ai_label,published_at").eq("slug", slug).maybeSingle();
-      if (data) story = data as Story;
-    } catch { /* a missing database still returns a card */ }
+  if (!supabaseConfigured()) return new Response("not found", { status: 404 });
+  let story: Story | null = null;
+  try {
+    const db = await supabaseUser();
+    const { data } = await db.from("stories").select("headline,summary,severity,category,place_name,country,city,confirmed,disputed,ai_label,published_at,status").eq("slug", slug).eq("status", "live").maybeSingle();
+    if (data?.headline) story = data as Story;
+  } catch {
+    return new Response("not found", { status: 503 });
   }
+  if (!story) return new Response("not found", { status: 404 });
+  try {
   const sev = story.severity ?? 2;
   const accent = sev >= 5 ? brand.colors.accent : sev === 4 ? "#ff8a3d" : sev === 3 ? "#ffd23d" : brand.colors.primary;
   const category = story.category && story.category in CATEGORY_LABEL ? story.category : "other";
   const tag = sev >= 5 ? "BREAKING" : sev === 4 ? "CRITICAL" : CATEGORY_LABEL[category].toUpperCase();
   const place = [story.place_name ?? story.city, story.country].filter(Boolean).join(", ");
-  const headline = story.headline || "Newsxis";
+  const headline = story.headline;
   const summary = story.summary || "";
   return new ImageResponse(
     (

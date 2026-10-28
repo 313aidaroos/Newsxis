@@ -48,10 +48,10 @@ export async function ingest(db: SupabaseClient, limitSources = 12): Promise<{ p
 type IngestRow = { id: string; source_id: string | null; title: string | null; url: string | null; published_at: string | null; raw: Record<string, unknown> };
 type TranscriptRow = { id: string; source_id: string; started_at: string; ended_at: string; lang: string; text: string };
 
-export async function process(db: SupabaseClient, limit = 8): Promise<{ stories: number; confirmations: number; skipped: number; errors: string[] }> {
-  if (!aiConfigured()) return { stories: 0, confirmations: 0, skipped: 0, errors: ["ai_not_configured"] };
+export async function process(db: SupabaseClient, limit = 8): Promise<{ stories: number; confirmations: number; skipped: number; errors: string[]; breaking: string[] }> {
+  if (!aiConfigured()) return { stories: 0, confirmations: 0, skipped: 0, errors: ["ai_not_configured"], breaking: [] };
   const t0 = Date.now();
-  const out = { stories: 0, confirmations: 0, skipped: 0, errors: [] as string[] };
+  const out = { stories: 0, confirmations: 0, skipped: 0, errors: [] as string[], breaking: [] as string[] };
   const { data: sourcesData } = await db.from("sources").select("*");
   const sources = new Map(((sourcesData ?? []) as Source[]).map((s) => [s.id, s]));
 
@@ -71,6 +71,7 @@ export async function process(db: SupabaseClient, limit = 8): Promise<{ stories:
       const r = await handleMaterial(db, material, src ?? null, { severityHint: Number(raw.severity_hint) || undefined, categoryHint: typeof raw.category_hint === "string" ? raw.category_hint : undefined });
       await db.from("ingest_items").update({ processed: true, story_id: r.storyId }).eq("id", it.id);
       if (r.kind === "story") out.stories++; else if (r.kind === "confirmation") out.confirmations++; else out.skipped++;
+      if (r.breaking && r.storyId) out.breaking.push(r.storyId);
     } catch (e) { out.errors.push(`${it.id}: ${(e as Error).message}`); await db.from("ingest_items").update({ processed: true }).eq("id", it.id); }
   }
 
@@ -87,16 +88,17 @@ export async function process(db: SupabaseClient, limit = 8): Promise<{ stories:
       const r = await handleMaterial(db, material, src, {});
       await db.from("transcripts").update({ processed: true, story_id: r.storyId }).eq("id", tr.id);
       if (r.kind === "story") out.stories++; else if (r.kind === "confirmation") out.confirmations++; else out.skipped++;
+      if (r.breaking && r.storyId) out.breaking.push(r.storyId);
     } catch (e) { out.errors.push(`tr ${tr.id}: ${(e as Error).message}`); await db.from("transcripts").update({ processed: true }).eq("id", tr.id); }
   }
   await logRun(db, "process", out.errors.length === 0, out.stories + out.confirmations, Date.now() - t0, out);
   return out;
 }
 
-async function handleMaterial(db: SupabaseClient, material: RawMaterial, src: Source | null, hints: { severityHint?: number; categoryHint?: string }): Promise<{ kind: "story" | "confirmation" | "skip"; storyId: string | null }> {
+async function handleMaterial(db: SupabaseClient, material: RawMaterial, src: Source | null, hints: { severityHint?: number; categoryHint?: string }): Promise<{ kind: "story" | "confirmation" | "skip"; storyId: string | null; breaking: boolean }> {
   const outLang = material.source_lang === "es" ? "es" : "en";
   let c = await classify(material, outLang);
-  if (!c) return { kind: "skip", storyId: null };
+  if (!c) return { kind: "skip", storyId: null, breaking: false };
   c = applyBreakingRules(c);
   if (hints.severityHint && hints.severityHint > c.severity) c.severity = hints.severityHint as Classified["severity"];
   if (hints.categoryHint && c.category === "other") c.category = hints.categoryHint as Classified["category"];
@@ -105,8 +107,9 @@ async function handleMaterial(db: SupabaseClient, material: RawMaterial, src: So
   if (twin) {
     await db.from("story_sources").insert({ story_id: twin.id, source_id: src?.id ?? null, url: material.url, title: material.title ?? c.headline, publisher: material.source_name, stance: "confirms", quote: c.quote });
     const confirmations = twin.confirmations + 1;
-    await db.from("stories").update({ confirmations, confirmed: confirmations >= 2, severity: Math.max(twin.severity, c.severity), breaking: twin.breaking || c.severity >= 5 }).eq("id", twin.id);
-    return { kind: "confirmation", storyId: twin.id };
+    const severity = Math.max(twin.severity, c.severity) as Classified["severity"];
+    await db.from("stories").update({ confirmations, confirmed: confirmations >= 2, severity, breaking: twin.breaking || severity >= 5 }).eq("id", twin.id);
+    return { kind: "confirmation", storyId: twin.id, breaking: wantsBreakingBriefing("confirmation", severity, twin.breaking) };
   }
 
   const row = {
@@ -120,21 +123,79 @@ async function handleMaterial(db: SupabaseClient, material: RawMaterial, src: So
   const { data, error } = await db.from("stories").insert(row).select("id").single();
   if (error) throw error;
   await db.from("story_sources").insert({ story_id: data.id, source_id: src?.id ?? null, url: material.url, title: material.title ?? c.headline, publisher: material.source_name, stance: "origin", quote: c.quote });
-  return { kind: "story", storyId: data.id };
+  return { kind: "story", storyId: data.id, breaking: wantsBreakingBriefing("story", c.severity, false) };
 }
 
-/** Same event already in the last 48h? Trigram similarity on headline + same place (≤ 150 km or same city/country). */
+/** A new severity-5 story, or a confirmation that first makes an existing story breaking. */
+export function wantsBreakingBriefing(kind: "story" | "confirmation", severity: number, wasBreaking: boolean): boolean {
+  if (severity < 5) return false;
+  if (kind === "story") return true;
+  return !wasBreaking;
+}
+
+export type StoryPlace = {
+  lat: number | null;
+  lng: number | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+};
+
+export type TwinText = StoryPlace & { headline: string; summary: string; category: string };
+
+const NEAR_KM = 150;
+
+function normPlace(value: string | null | undefined): string | null {
+  const text = value?.trim().toLowerCase();
+  return text ? text : null;
+}
+
+/**
+ * How two items share a place.
+ * A story with no city does not match a story that names a city, and same country
+ * alone is not enough to treat them as one event.
+ */
+export function placeMatchKind(a: StoryPlace, b: StoryPlace): "near" | "city" | "region" | "country" | null {
+  if (a.lat != null && a.lng != null && b.lat != null && b.lng != null && haversineKm(a.lat, a.lng, b.lat, b.lng) <= NEAR_KM) return "near";
+  const aCity = normPlace(a.city);
+  const bCity = normPlace(b.city);
+  const aCountry = a.country?.trim().toUpperCase() || null;
+  const bCountry = b.country?.trim().toUpperCase() || null;
+  const sameCountry = Boolean(aCountry && bCountry && aCountry === bCountry);
+  if (aCity && bCity && aCity === bCity && (sameCountry || !aCountry || !bCountry)) return "city";
+  if (aCity || bCity) return null;
+  if (!sameCountry) return null;
+  const aRegion = normPlace(a.region);
+  const bRegion = normPlace(b.region);
+  if (aRegion && bRegion) return aRegion === bRegion ? "region" : null;
+  if (aRegion || bRegion) return null;
+  return "country";
+}
+
+export function duplicateThreshold(kind: "near" | "city" | "region" | "country", sameCategory: boolean): number {
+  if (kind === "country") return 0.62;
+  return sameCategory ? 0.42 : 0.55;
+}
+
+export function isSameEvent(incoming: TwinText, existing: TwinText): boolean {
+  const kind = placeMatchKind(incoming, existing);
+  if (!kind) return false;
+  const sameCategory = existing.category === incoming.category || existing.category === "other" || incoming.category === "other";
+  const score = jaccard(tokens(`${incoming.headline} ${incoming.summary}`), tokens(`${existing.headline} ${existing.summary}`));
+  return score >= duplicateThreshold(kind, sameCategory);
+}
+
+/** Same event already in the last 48h? Wording plus a place that is actually the same place. */
 async function findTwin(db: SupabaseClient, c: Classified): Promise<Pick<Story, "id" | "confirmations" | "severity" | "breaking"> | null> {
   const since = new Date(Date.now() - 48 * 3600 * 1000).toISOString();
-  const { data } = await db.from("stories").select("id,headline,summary,confirmations,severity,breaking,lat,lng,city,country,category").gte("published_at", since).eq("status", "live").order("published_at", { ascending: false }).limit(300);
-  const words = tokens(`${c.headline} ${c.summary}`);
+  const { data } = await db.from("stories").select("id,headline,summary,confirmations,severity,breaking,lat,lng,city,region,country,category").gte("published_at", since).eq("status", "live").order("published_at", { ascending: false }).limit(300);
   let best: { row: Story; score: number } | null = null;
+  const incoming: TwinText = { headline: c.headline, summary: c.summary, category: c.category, lat: c.lat, lng: c.lng, city: c.city, region: c.region, country: c.country };
   for (const row of (data ?? []) as Story[]) {
-    const samePlace = (c.lat && row.lat && row.lng && haversineKm(c.lat, c.lng!, row.lat, row.lng) <= 150) || (c.city && row.city && c.city.toLowerCase() === row.city.toLowerCase()) || (!c.city && c.country && row.country === c.country);
-    if (!samePlace) continue;
-    const score = jaccard(words, tokens(`${row.headline} ${row.summary}`));
-    const sameCat = row.category === c.category || row.category === "other" || c.category === "other";
-    if (score >= (sameCat ? 0.42 : 0.55) && (!best || score > best.score)) best = { row, score };
+    const existing: TwinText = { headline: row.headline, summary: row.summary, category: row.category, lat: row.lat, lng: row.lng, city: row.city, region: row.region, country: row.country };
+    if (!isSameEvent(incoming, existing)) continue;
+    const score = jaccard(tokens(`${incoming.headline} ${incoming.summary}`), tokens(`${existing.headline} ${existing.summary}`));
+    if (!best || score > best.score) best = { row, score };
   }
   return best?.row ?? null;
 }

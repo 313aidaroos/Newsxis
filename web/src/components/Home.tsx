@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Briefing, Post, Source, Story } from "@/lib/types";
-import { cixyReadout, feedIsLive, feedReasonFetches, focusForStory, HOME_REFRESH_MS, VIEW_PAN_DEBOUNCE_MS, type FeedReason } from "@/lib/home-feed";
+import { cixyReadout, feedIsLive, feedReasonFetches, focusForStory, HOME_REFRESH_MS, VIEW_PAN_DEBOUNCE_MS, withPinsFirst, type FeedReason } from "@/lib/home-feed";
 import { StoryCard } from "./StoryCard";
 import { geocode, type Layers } from "./Globe";
 
@@ -72,11 +72,14 @@ export function Home({ initialStories, initialStations, initialBriefing, showGra
 
   const visible = useMemo(() => {
     const list = stories;
-    if (mode === "view" && view) {
-      const [w, so, e, n] = view.bbox;
-      return list.filter((s) => s.lat !== null && s.lng !== null && s.lat >= so && s.lat <= n && (w <= e ? s.lng >= w && s.lng <= e : s.lng >= w || s.lng <= e));
-    }
-    return list;
+    const inView = mode === "view" && view
+      ? list.filter((s) => {
+        if (s.lat === null || s.lng === null || !view) return false;
+        const [w, so, e, n] = view.bbox;
+        return s.lat >= so && s.lat <= n && (w <= e ? s.lng >= w && s.lng <= e : s.lng >= w || s.lng <= e);
+      })
+      : list;
+    return withPinsFirst(inView);
   }, [stories, mode, view]);
 
   const search = async (e: React.FormEvent) => {

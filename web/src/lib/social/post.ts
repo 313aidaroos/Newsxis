@@ -5,6 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decrypt } from "@/lib/crypto";
 import { socialText } from "@/lib/ai/social-text";
+import { storyCardUrl } from "@/lib/public-site";
 import { isConfigSkip, socialEnv, socialSkipReason } from "@/lib/social/gate";
 import type { Story } from "@/lib/types";
 
@@ -110,7 +111,7 @@ export async function runSocialQueue(db: SupabaseClient, siteUrl: string, limit 
     const next = (queue as unknown as Array<{ id: string; story: Story }>).sort((x, y) => y.story.severity - x.story.severity)[0];
     if (!gapOk && next.story.severity < 5) { out.waiting++; continue; }
     const text = socialText(next.story, siteUrl, a.platform);
-    const cardUrl = `${siteUrl.replace(/\/$/, "")}/brand/og-image.png`;
+    const cardUrl = storyCardUrl(siteUrl, next.story.slug);
     try {
       let card: Buffer | null = null;
       if (a.platform !== "facebook") {

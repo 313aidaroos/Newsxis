@@ -2,6 +2,23 @@
 
 Every AI model, bot or agent that changes anything in this repo appends a dated entry here (what + why).
 
+## 2026-10-28 — Grok: beta readiness
+- Breaking bulletins: the process step now asks for one when a story is first severity 5, and `/api/cron/briefing?scope=breaking` runs every 2 minutes for any severity-5 story in the last 6 hours that still has no bulletin. A second pass does not write another one.
+- Sponsor lines are stored for card and Ixis (`Sponsor line` and `Sponsor scope` in the receipt note) and read into briefings for that scope for 24 hours. A card checkout that only returns a Wallet URL keeps the line in an httpOnly cookie and writes the receipt only after the Wallet lists a payment with the sponsor lookup key.
+- "Pin this story for 24 hours" is on the story page. Card and Ixis both require a live story id. The pin sorts that story first in the feed until it expires.
+- `enterApixisUrl("newsxis")` now sends `from=newsxis`. Apixis.dev still has to accept that client or the back link is dropped on their side.
+- Failed alerts retry at 2, 4, 8, and 16 minutes, then stop. A story that is no longer live is not retried.
+- A story with no city no longer merges with a story that names a city, or with a different region. Same-country stories with no city and no region need closer wording.
+- Migration `007_radio_browser.sql` points BBC, WBGO, ABC NewsRadio, and RFI at https streams that answered as audio on 2026-10-28, and turns off WNYC AM, DW English, CBC Radio One Toronto, and RNE. Those four did not answer, or only answered as HLS, which the site's audio player does not play. Not applied.
+- `brand.json`, `web/.env.example`, and `workers/.env.example` use `https://newsxis.apixis.dev`. The smart-model default is `claude-sonnet-5-5` in code and in the example. Web search stays `web_search_20260209`. Both are current Anthropic ids. Haiku stays `claude-haiku-4-5`, the alias of `claude-haiku-4-5-20251001`.
+- The logo test allows the Cixy portraits in `web/public/cixy/`. They are the pictures the desk already shows. The brand kit is unchanged.
+- The radio worker's stream choice, silence gate, ffmpeg arguments, backoff, and speech-provider URLs have tests.
+- Story and social previews use `/api/card/<slug>`, drawn from that live story. A missing story is a 404, not a made-up card.
+- Migrations 005 and 006 stay unapplied. 005's buyer policy is for `authenticated`. 006 adds the unique key if a partial run skipped it, and grants the service role the report table. Both can be run twice.
+- No migration was applied. No Vercel env was changed. Nothing was deployed.
+- Tests: `cd web && npx tsc --noEmit` and `npm test` (50 passed). `cd workers && npm test` (5 passed).
+- Undo: revert this commit on `cursor/beta-readiness-e247`. Do not merge from this note.
+
 ## 2026-10-17 — Grok: paper newsroom redesign
 - The approved light newsroom is on the same branch as the logo kit. Header uses `/brand/mark.png` with the name under it. Palette is red `#F03050`, blue `#1E5BB8` / `#459BE2`, paper `#F4F7FB`, ink `#10182C`. The footer row is "Other Ixis companies" and names Ominixis. Recovra is omitted because it merged into Deduxis.
 - Sign-in stays Apixis-ID-only. An empty `APIXIS_CLIENT_ID` hides the button and the start route returns to `/login` instead of opening the Wallet with a blank client id. The header has one sign-in control. The Live badge appears only when a story was published in the last three hours. Hovering a story flies the globe to its coordinates. Ask Cixy falls back to headlines already on the map when the model is unavailable. Login copy no longer mentions chat. `/api/health` counts the default Facebook Page as linked. Story and social shares use `/brand/og-image.png`. `/api/card` returns that file if drawing the card throws.
